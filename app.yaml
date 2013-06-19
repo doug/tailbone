@@ -28,6 +28,8 @@ includes:
   - tailbone/clocksync
   ## Websocket+WebRTC based mesh server with rooms and load balancing
   - tailbone/compute_engine/mesh
+  ## Protect all html pages with a simple password, modify in appengine_config.py
+  - tailbone/static_protected
   ## Order in this list is important for restful and pathrewrite, they must be last.
   ## Restful resources
   - tailbone/restful
@@ -35,18 +37,11 @@ includes:
   ## html5 applications that use the history api to write their paths.
   # - tailbone/pathrewrite
 
-handlers:
-  # # Add your own custom apps and handlers if you want to extend this
-  # - url: /custom/.*
-  #   script: custom.app
-
   # This links everything else in your client/app folder to be served
   # Change this to something else if your public folder is not client/app
-  - url: (/?.*)/
-    static_files: client/app\1/index.html
-    upload: client/app(.*)/index.html
-  - url: /
-    static_dir: client/app
+  # if you use tailbone/static_protected you need to turn this off
+  # - tailbone/static
+
 
 builtins:
   - appstats: on

@@ -18,7 +18,7 @@
 tailbone_JSONP = False
 tailbone_METADATA = False
 
-
+protected_PASSWORD = "secret"
 
 
 
