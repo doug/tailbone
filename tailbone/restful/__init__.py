@@ -50,10 +50,18 @@
 #       save checks all listened queries for a matching one
 
 # shared resources and global variables
-from tailbone import AppError, LoginError, BreakError, as_json, parse_body
-from tailbone import BaseHandler, DEBUG, PREFIX, PROTECTED, compile_js, config
+from tailbone import AppError
+from tailbone import as_json
+from tailbone import BaseHandler
+from tailbone import BreakError
+from tailbone import DEBUG
+from tailbone import compile_js
+from tailbone import config
+from tailbone import LoginError
+from tailbone import parse_body
+from tailbone import PREFIX
 from tailbone import search
-from counter import get_count, increment, decrement
+from tailbone.restful import counter
 
 import datetime
 import json
@@ -66,6 +74,17 @@ from google.appengine import api
 from google.appengine.ext import ndb
 
 
+class _ConfigDefaults(object):
+  # store total model count in metadata field HEAD query
+  METADATA = False
+  # list of valid models, None means anything goes
+  RESTRICTED_MODELS = None
+  PROTECTED_MODEL_NAMES = ["(?i)(mesh|messages|files|events|admin|proxy)",
+                           "(?i)tailbone.*"]
+
+_config = api.lib_config.register('tailbone_restful', _ConfigDefaults.__dict__)
+
+
 re_public = re.compile(r"^[A-Z].*")
 re_type = type(re_public)
 
@@ -75,7 +94,7 @@ ProtectedModelError = AppError("This is a protected Model.")
 
 
 def validate_modelname(model):
-  if [r for r in PROTECTED if r.match(model)]:
+  if [r for r in _config.PROTECTED_MODEL_NAMES if re.match(r, model)]:
     raise ProtectedModelError
 
 
@@ -451,8 +470,8 @@ class RestfulHandler(BaseHandler):
     key = parse_id(id, model)
     key.delete()
     search.delete(key)
-    if config.METADATA:
-      decrement(model)
+    if _config.METADATA:
+      counter.decrement(model)
     return {}
 
   def set_or_create(self, model, id, parent_key=None):
@@ -491,8 +510,8 @@ class RestfulHandler(BaseHandler):
         m.owners.append(u)
     m.put()
     # increment count
-    if not already_exists and config.METADATA:
-      increment(model)
+    if not already_exists and _config.METADATA:
+      counter.increment(model)
     # update indexes
     search.put(m)
     redirect = self.request.get("redirect")
@@ -504,11 +523,11 @@ class RestfulHandler(BaseHandler):
 
   # Metadata including the count in the response header
   def head(self, model, id):
-    if config.METADATA:
+    if _config.METADATA:
       model = model.lower()
       validate_modelname(model)
       metadata = {
-        "total": get_count(model)
+        "total": counter.get_count(model)
       }
       self.response.headers["Metadata"] = json.dumps(metadata)
 

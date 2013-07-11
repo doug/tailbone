@@ -23,6 +23,8 @@ from tailbone import as_json
 from tailbone import BaseHandler
 from tailbone import parse_body
 from tailbone import config
+from tailbone import DEBUG
+from tailbone import PREFIX
 
 import importlib
 import inspect
@@ -81,7 +83,7 @@ STATUS_DELAY = 2*60
 
 
 def build_service(service_name, api_version, scopes):
-  if config.DEBUG:
+  if DEBUG:
     from oauth2client.client import SignedJwtAssertionCredentials
     credentials_file = "credentials.json"
     if os.path.exists(credentials_file):
@@ -111,8 +113,6 @@ def build_service(service_name, api_version, scopes):
 
 
 def compute_api():
-  # if config.DEBUG:
-  #   return None
   return build_service("compute", API_VERSION, SCOPES)
 
 
@@ -531,5 +531,5 @@ class LoadBalanceAdminHandler(BaseHandler):
 
 
 app = webapp2.WSGIApplication([
-  (r"{}compute_engine/?.*".format(config.PREFIX), LoadBalanceAdminHandler),
-], debug=config.DEBUG)
+  (r"{}compute_engine/?.*".format(PREFIX), LoadBalanceAdminHandler),
+], debug=DEBUG)

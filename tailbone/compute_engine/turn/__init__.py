@@ -15,6 +15,8 @@
 from tailbone import BaseHandler
 from tailbone import as_json
 from tailbone import config
+from tailbone import DEBUG
+from tailbone import PREFIX
 from tailbone.compute_engine import TailboneCEInstance
 
 import binascii
@@ -66,5 +68,5 @@ class TurnHandler(BaseHandler):
     }
 
 app = webapp2.WSGIApplication([
-  (r"{}turn/?.*".format(config.PREFIX), TurnHandler),
-], debug=config.DEBUG)
+  (r"{}turn/?.*".format(PREFIX), TurnHandler),
+], debug=DEBUG)

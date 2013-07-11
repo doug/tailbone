@@ -12,4 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Blank include.yaml, placeholder for the app.yaml which registers the geoip middleware
+handlers:
+  - url: /api/geoip
+    script: tailbone.geoip.app

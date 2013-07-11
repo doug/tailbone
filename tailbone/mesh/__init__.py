@@ -15,7 +15,10 @@
 # shared resources and global variables
 from tailbone import as_json, BaseHandler, compile_js, AppError
 from tailbone import config
-from tailbone.compute_engine import LoadBalancer, TailboneCEInstance
+from tailbone import DEBUG
+from tailbone import PREFIX
+from tailbone.compute_engine import LoadBalancer
+from tailbone.compute_engine import TailboneCEInstance
 from tailbone.compute_engine import turn
 
 import base64
@@ -37,6 +40,9 @@ mesh_script = open("tailbone/compute_engine/mesh/setup_and_run.sh").read()
 
 class _ConfigDefaults(object):
   ROOM_EXPIRATION = 86400  # one day in seconds
+  ENABLE_TURN = False
+  ENABLE_WEBSOCKET = False
+  ENABLE_CHANNEL = False
 
   def generate_room_name():
     return generate_word() + "." + generate_word()
@@ -79,7 +85,7 @@ def get_or_create_room(request, name=None):
     room = room_hash(name)
     address = memcache.get(room)
   if not address:
-    if config.DEBUG:
+    if DEBUG:
       class DebugInstance(object):
         address = request.remote_addr or "localhost"
       instance = DebugInstance()
@@ -117,20 +123,20 @@ class MeshHandler(BaseHandler):
       raise AppError("Must provide name.")
 
 EXPORTED_JAVASCRIPT = compile_js([
-  "tailbone/compute_engine/mesh/js/EventDispatcher.js",
-  "tailbone/compute_engine/mesh/js/StateDrive.js",
-  "tailbone/compute_engine/mesh/js/Channel.js",
-  "tailbone/compute_engine/mesh/js/SocketChannel.js",
-  "tailbone/compute_engine/mesh/js/SocketMultiplexer.js",
-  "tailbone/compute_engine/mesh/js/RTCChannel.js",
-  "tailbone/compute_engine/mesh/js/Node.js",
-  "tailbone/compute_engine/mesh/js/Peers.js",
-  "tailbone/compute_engine/mesh/js/Mesh.js",
+  "tailbone/mesh/js/EventDispatcher.js",
+  "tailbone/mesh/js/StateDrive.js",
+  "tailbone/mesh/js/Channel.js",
+  "tailbone/mesh/js/SocketChannel.js",
+  "tailbone/mesh/js/SocketMultiplexer.js",
+  "tailbone/mesh/js/RTCChannel.js",
+  "tailbone/mesh/js/Node.js",
+  "tailbone/mesh/js/Peers.js",
+  "tailbone/mesh/js/Mesh.js",
 ], ["Mesh"])
 
 app = webapp2.WSGIApplication([
-  (r"{}mesh/?(.*)".format(config.PREFIX), MeshHandler),
-], debug=config.DEBUG)
+  (r"{}mesh/?(.*)".format(PREFIX), MeshHandler),
+], debug=DEBUG)
 
 
 # Gibberish generator modified from: https://github.com/greghaskins/gibberish

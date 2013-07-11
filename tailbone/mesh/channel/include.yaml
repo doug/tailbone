@@ -13,6 +13,7 @@
 # limitations under the License.
 
 handlers:
-  - url: /api/messages/?.*
-    script: tailbone.messages.app
-
+  - url: /api/channel/?.*
+    script: tailbone.channel.app
+  - url: /_ah/channel/(dis)?connected/
+    script: tailbone.channel.connected

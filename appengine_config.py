@@ -13,34 +13,38 @@
 # limitations under the License.
 
 
-# this will extend the tailbone configuration file in tailbone/__init__.py
+# Edit the code below to add you own hooks and modify tailbone's behavior
 
-tailbone_JSONP = False
-tailbone_METADATA = False
+## Base Tailbone overrides and hooks
+# tailbone_JSONP = False
+# tailbone_PROTECTED = list of regex strings for protected models
 
-
-
-
-
-# READ app yaml and import any defined Middleware objects
-import yaml
-middleware_list = []
-with open("app.yaml") as f:
-  appyaml = yaml.load(f)
-  for include in appyaml.get("includes", []):
-    try:
-      module = __import__(include.replace("/", "."), 
-                          globals(), locals(), ['Middleware'], -1)
-      middleware = getattr(module, 'Middleware', None)
-      if middleware:
-        middleware_list.append(middleware)
-    except ImportError:
-      pass
+## modify the below functions to change how users are identified
+# tailbone_is_current_user_admin = 
+# tailbone_get_current_user = 
+# tailbone_create_login_url = 
+# tailbone_create_logout_url = 
 
 
-def webapp_add_wsgi_middleware(app):
-  """Loads any registered middleware, i.e. 
-  included modules that have a Middleware class."""
-  for middleware in middleware_list:
-    app = middleware(app)
-  return app
+## Store counts for restful models accessible in HEAD query
+# tailbone_restful_METADATA = False
+
+## If specified is a list of tailbone.restful.ScopedModel objects these will be the only ones allowed.
+## This is a next level step of model restriction to your db, this replaces validation.json
+# tailbone_restful_RESTRICTED_MODELS = [MyModel, MyOtherModel]
+
+## Protected model names gets overridden by RESTRICTED_MODELS
+# tailbone_restful_PROTECTED_MODEL_NAMES = ["(?i)tailbone.*", "custom", "(?i)users"]
+
+## Proxy can only be used for the restricted domains if specified
+# tailbone_proxy_RESTRICTED_DOMAINS = ["google.com"]
+
+
+# tailbone_mesh_TURN = False
+# tailbone_mesh_WEBSOCKET = False
+# tailbone_mesh_CHANNEL = True
+
+## Seconds until room expires
+# tailbone_mesh_ROOM_EXPIRATION = 86400
+
+

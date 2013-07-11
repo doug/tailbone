@@ -36,11 +36,6 @@ PROTECTED = [re.compile("(mesh|messages|files|events|admin|proxy)", re.IGNORECAS
 
 class _ConfigDefaults(object):
   JSONP = False
-  METADATA = False
-  PREFIX = "/api/"
-  DEBUG = os.environ.get("SERVER_SOFTWARE", "").startswith("Dev")
-  PROTECTED = [re.compile("(mesh|messages|files|events|admin|proxy)", re.IGNORECASE),
-               re.compile("tailbone.*", re.IGNORECASE)]
 
   def is_current_user_admin(*args, **kwargs):
     return api.users.is_current_user_admin(*args, **kwargs)

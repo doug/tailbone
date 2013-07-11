@@ -1,5 +1,5 @@
-application: your-app-id
-version: master
+application: foldedfury
+version: test
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -17,8 +17,8 @@ includes:
   # - tailbone/events
   ## Send direct messages between clients with the channel api
   # - tailbone/messages
-  ## Add the users location in headers via geoip lookup
-  # - tailbone/geoip
+  ## Get the user location
+  - tailbone/geoip
   ## Full text search must provide a searchable.json at the root level
   # - tailbone/search
   ## Simple reverse proxy sometimes useful for cors purposes (note: don't use if you don't have to it
