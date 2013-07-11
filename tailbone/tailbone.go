@@ -128,6 +128,6 @@ func init() {
 	http.HandleFunc("/api/login", Login)
 	http.HandleFunc("/api/logout", Logout)
 	if appengine.IsDevAppServer() {
-		http.HandleFunc("/api/test/", serveJsTests)
+		http.HandleFunc("/test/", serveJsTests)
 	}
 }
