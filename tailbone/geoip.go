@@ -31,24 +31,13 @@ func (*GeoIPService) Get(
   r *http.Request, req *GeoIPReq, resp *GeoIPResp) error {
 
   resp.Country = r.Header.Get("X-AppEngine-Country")
+  resp.Region = r.Header.Get("X-AppEngine-Region")
+  resp.City = r.Header.Get("X-AppEngine-City")
+  resp.CityLatLong = r.Header.Get("X-AppEngine-CityLatLong")
+  resp.IP = r.RemoteAddr
 
   return nil
 }
-
-
-// func GeoIP(c appengine.Context, r *http.Request) (ResponseWritable, error) {
-//   switch r.Method {
-//   case "GET":
-//     return Dict{
-//       "Country": r.Header.Get("X-AppEngine-Country"),
-//       "Region": r.Header.Get("X-AppEngine-Region"),
-//       "City": r.Header.Get("X-AppEngine-City"),
-//       "CityLatLong": r.Header.Get("X-AppEngine-CityLatLong"),
-//       "IP": r.RemoteAddr,
-//     }, nil
-//   }
-//   return nil, AppError{"Undefined method."}
-// }
 
 func init() {
   geoip := &GeoIPService{}
@@ -61,10 +50,8 @@ func init() {
 
   info := api.MethodByName("Get").Info()
   info.Name, info.HttpMethod, info.Path, info.Desc =
-    "geoip.get", "GET", "geoip", "Get GeoIP information."
+    "get", "GET", "geoip", "Get GeoIP information."
 
   endpoints.HandleHttp()
  
-  // fmt.Println("%s", endpoints)
-  // http.HandleFunc("/api/geoip/", Json(GeoIP))
 }
