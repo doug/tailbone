@@ -9,28 +9,20 @@ includes:
   - tailbone
   ## Qunit tests (only works when running locally)
   - tailbone/test
-  ## Extra admin commands and interfaces (not done yet)
-  # - tailbone/admin
-  ## Upload files to blobstore (TODO: also allow cloud storage)
-  # - tailbone/files
-  ## Listen to and bind to global events with javascript and the channel api
-  # - tailbone/events
-  ## Send direct messages between clients with the channel api
-  # - tailbone/messages
   ## Get the user location
   - tailbone/geoip
   ## Full text search must provide a searchable.json at the root level
   # - tailbone/search
   ## Simple reverse proxy sometimes useful for cors purposes (note: don't use if you don't have to it
-  ## will cost you bandwidth and has no auth)
+  ## will cost you bandwidth and has no auth you can domain restrict in appengine_config.py)
   # - tailbone/proxy
   ## Clocksync simple synchronization of clocks
   # - tailbone/clocksync
   ## Websocket+WebRTC based mesh server with rooms and load balancing
-  - tailbone/compute_engine/mesh
+  - tailbone/mesh
   ## Order in this list is important for restful and pathrewrite, they must be last.
   ## Restful resources
-  # - tailbone/restful
+  - tailbone/restful
   ## Any path without a file extension not in /api gets the app/client/index.html text. Useful for
   ## html5 applications that use the history api to write their paths.
   # - tailbone/pathrewrite
@@ -38,7 +30,7 @@ includes:
 handlers:
   # # Add your own custom apps and handlers if you want to extend this
   # - url: /custom/.*
-  #   script: custom.app
+  #   script: client/custom.app
 
   # This links everything else in your client/app folder to be served
   # Change this to something else if your public folder is not client/app
