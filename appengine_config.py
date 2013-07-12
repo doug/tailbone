@@ -32,8 +32,8 @@
 ## Use cloud store instead of blobstore
 # tailbone_files_CLOUDSTORE = False
 
-## Store counts for restful models accessible in HEAD query
-# tailbone_restful_METADATA = False
+## Store counts for restful models accessible in HEAD query default: False
+# tailbone_restful_METADATA = True
 
 ## If specified is a list of tailbone.restful.ScopedModel objects these will be the only ones allowed.
 ## This is a next level step of model restriction to your db, this replaces validation.json
