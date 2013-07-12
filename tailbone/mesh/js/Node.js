@@ -11,7 +11,7 @@
  */
 var NodeUtils = {
 
-  PROTECTED_EVENTS: ['open', 'exist', 'enter', 'leave', 'bind', 'unbind', 'connect'],
+  PROTECTED_EVENTS: ['open', 'close', 'error', 'connect', 'enter', 'leave', 'bind', 'unbind'],
 
   uidSeed: 1,
   remoteBindsByNodeIds: {},
@@ -297,8 +297,8 @@ Node.prototype.preprocessIncoming = function (eventArguments) {
 
   switch (type) {
 
-    case 'exist':
-      // parsedArguments.push(type);
+    case 'connect':
+      parsedArguments.push(type);
       for (i = 1; i < eventArguments.length; ++i) {
         node = new Node(this.mesh, eventArguments[i], true);
         parsedArguments.push(node);
@@ -309,17 +309,11 @@ Node.prototype.preprocessIncoming = function (eventArguments) {
         }
       }
       if (this != this.mesh.self) {
-        console.warn('Expected exist triggered only on self node.')
+        console.warn('Expected "connect" triggered only on self node.')
       }
-      // add yourself
-      parsedArguments.unshift(this);
-      // transform the exist call to another enter call
-      parsedArguments.unshift('enter');
       // mark mesh and peers as connected
       this.mesh.peers.setState(Node.STATE.CONNECTED);
       this.mesh.setState(Node.STATE.CONNECTED);
-      // trigger connect with self node
-      this.trigger('connect', this);
       break;
 
     case 'enter':

@@ -88,7 +88,7 @@ SocketMultiplexer.prototype.open = function(channel) {
       throw new Error('Invalid data received', data);
     }
     // one time upgrade of self id upon connection
-    if (data[0] === 'exist') {
+    if (data[0] === 'connect') {
       // find a null self node and upgrade it
       var selfChannel = self.channels[null];
       selfChannel.localNode.id = from;
@@ -100,6 +100,7 @@ SocketMultiplexer.prototype.open = function(channel) {
       console.log('from', fromChannel.remoteNode.id,
         'to', fromChannel.localNode.id, data);
       fromChannel.trigger('message', {
+        from: fromChannel.remoteNode.id,
         timestamp: timestamp,
         data: data
       });
@@ -114,6 +115,7 @@ SocketMultiplexer.prototype.open = function(channel) {
       var channel = self.channels[id];
       channel.setState(Channel.STATE.CLOSED);
       channel.trigger('close', {
+        from: fromChannel.remoteNode.id,
         timestamp: Date.now(),
         data: ['close']
       });
@@ -127,6 +129,7 @@ SocketMultiplexer.prototype.open = function(channel) {
       var channel = self.channels[id];
       channel.setState(Channel.STATE.CLOSED);
       channel.trigger('error', {
+        from: fromChannel.remoteNode.id,
         timestamp: Date.now(),
         data: ['error']
       });

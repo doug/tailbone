@@ -34,7 +34,7 @@ def enter(node, mesh_id):
 
   logging.debug('enter (node ID: %s, mesh ID: %s)' % (node.id, mesh_id))
   # exist should be the first thing sent
-  send_to_node(node, node, json.dumps(['exist'] + get_exist(mesh, node.id)))
+  send_to_node(node, node, json.dumps(['connect'] + get_exist(mesh, node.id)))
   # make the enter call be a self message for routing
   msg = json.dumps(['enter', node.id])
   for n in mesh:

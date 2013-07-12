@@ -14,10 +14,7 @@
 
 handlers:
   - url: /api/mesh/?.*
-    script: tailbone.compute_engine.mesh.app
-  - url: /tailbone.mesh.js
-    script: tailbone.compute_engine.mesh.app
-
+    script: tailbone.mesh.app
 
 includes:
   - tailbone/compute_engine

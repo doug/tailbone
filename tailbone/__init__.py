@@ -18,6 +18,7 @@ import json
 import logging
 import os
 import re
+import sys
 try:
   import traceback
 except:
@@ -28,6 +29,11 @@ import yaml
 from google.appengine import api
 from google.appengine.ext import ndb
 
+sys.path.insert(0, "tailbone/dependencies.zip")
+from oauth2client.appengine import AppAssertionCredentials
+import httplib2
+from apiclient.discovery import build
+
 PREFIX = "/api/"
 DEBUG = os.environ.get("SERVER_SOFTWARE", "").startswith("Dev")
 
@@ -36,6 +42,9 @@ PROTECTED = [re.compile("(mesh|messages|files|events|admin|proxy)", re.IGNORECAS
 
 class _ConfigDefaults(object):
   JSONP = False
+  SERVICE_EMAIL = None
+  SERVICE_KEY_PATH = None
+  NAMESPACE = None
 
   def is_current_user_admin(*args, **kwargs):
     return api.users.is_current_user_admin(*args, **kwargs)
@@ -169,6 +178,30 @@ def parse_body(self):
   return data or {}
 
 
+def build_service(service_name, api_version, scopes):
+  """Get an authorized service account http connection"""
+  if DEBUG:
+    from oauth2client.client import SignedJwtAssertionCredentials
+    if config.SERVICE_EMAIL and config.SERVICE_KEY_PATH and os.path.exists(config.SERVICE_KEY_PATH):
+      # must extract key first since pycrypto doesn't support p12 files
+      # openssl pkcs12 -passin pass:notasecret -in privatekey.p12 -nocerts -passout pass:notasecret -out key.pem
+      # openssl pkcs8 -nocrypt -in key.pem -passin pass:notasecret -topk8 -out privatekey.pem
+      # rm key.pem
+      key_str = open(config.SERVICE_KEY_PATH).read()
+      credentials = SignedJwtAssertionCredentials(
+        config.SERVICE_EMAIL,
+        key_str,
+        scopes)
+      http = credentials.authorize(httplib2.Http(memcache))
+      return build(service_name, api_version, http=http)
+    else:
+      logging.warn("Please create a service account and download your key.")
+      return None
+  credentials = AppAssertionCredentials(scope=scopes)
+  http = credentials.authorize(httplib2.Http(memcache)) 
+  return build(service_name, api_version, http=http)
+
+
 # Leave minification etc up to PageSpeed
 def compile_js(files, exports=None):
   js = "(function(root) {\n" if exports else ""
@@ -249,3 +282,13 @@ app = webapp2.WSGIApplication([
   (r"/tailbone.js", js_handler()),
 ], debug=DEBUG)
 
+class AddSlashHandler(webapp2.RequestHandler):
+  def get(self):
+    url = self.request.path + "/"
+    if self.request.query_string:
+      url += "?" + self.request.query_string
+    self.redirect(url)
+
+add_slash = webapp2.WSGIApplication([
+  (r".*", AddSlashHandler)
+], debug=DEBUG)

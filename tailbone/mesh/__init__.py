@@ -19,6 +19,7 @@ from tailbone import DEBUG
 from tailbone import PREFIX
 from tailbone.compute_engine import LoadBalancer
 from tailbone.compute_engine import TailboneCEInstance
+from tailbone.compute_engine import websocket
 from tailbone.compute_engine import turn
 
 import base64
@@ -32,12 +33,6 @@ from google.appengine.api import memcache
 from google.appengine.api import app_identity
 from google.appengine.api import lib_config 
 
-APP_VERSION = os.environ.get("CURRENT_VERSION_ID", "").split('.')[0]
-HOSTNAME = APP_VERSION + "-dot-" + app_identity.get_default_version_hostname()
-WEBSOCKET_PORT = 2345
-
-mesh_script = open("tailbone/compute_engine/mesh/setup_and_run.sh").read()
-
 class _ConfigDefaults(object):
   ROOM_EXPIRATION = 86400  # one day in seconds
   ENABLE_TURN = False
@@ -48,24 +43,7 @@ class _ConfigDefaults(object):
     return generate_word() + "." + generate_word()
 
 
-_config = lib_config.register('mesh', _ConfigDefaults.__dict__)
-
-# TODO: Use an image instead of a startup-script for downloading dependencies
-
-# Prefixing internal models with Tailbone to avoid clobbering when using RESTful API
-class TailboneMeshInstance(TailboneCEInstance):
-  PARAMS = dict(TailboneCEInstance.PARAMS, **{
-    "name": "websocket-id",
-    "metadata": {
-      "items": [
-        {
-          "key": "startup-script",
-          "value": mesh_script,
-        },
-      ],
-    }
-  })
-
+_config = lib_config.register('tailbone_mesh', _ConfigDefaults.__dict__)
 
 def room_hash(name):
   return "tailbone-mesh-room-{}".format(base64.b64encode(name))
@@ -90,10 +68,10 @@ def get_or_create_room(request, name=None):
         address = request.remote_addr or "localhost"
       instance = DebugInstance()
     else:
-      instance = LoadBalancer.find(TailboneMeshInstance, request)
+      instance = LoadBalancer.find(websocket.TailboneWebsocketInstance, request)
     if not instance:
       raise AppError('Instance not yet ready, try again later.')
-    address = "ws://{}:{}/{}".format(instance.address, WEBSOCKET_PORT, name)
+    address = "ws://{}:{}/{}".format(instance.address, websocket.WEBSOCKET_PORT, name)
     memcache.set(room, address, time=_config.ROOM_EXPIRATION)
   return name, address
 

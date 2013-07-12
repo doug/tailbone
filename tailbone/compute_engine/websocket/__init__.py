@@ -12,67 +12,70 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from tailbone import as_json
+from tailbone import BaseHandler
 from tailbone import DEBUG
+from tailbone import PREFIX
+from tailbone.compute_engine import LoadBalancer
+from tailbone.compute_engine import TailboneCEInstance
 
-import json
-import logging
-import random
 import webapp2
 
-from google.appengine.api import channel
-from google.appengine.ext import ndb
+WEBSOCKET_PORT = 2345
 
-class ConnectedHandler(BaseHandler):
+# TODO: Use an image instead of a startup-script for downloading dependencies
+
+# Prefixing internal models with Tailbone to avoid clobbering when using RESTful API
+class TailboneWebsocketInstance(TailboneCEInstance):
+  PARAMS = dict(TailboneCEInstance.PARAMS, **{
+    "name": "websocket-id",
+    "metadata": {
+      "items": [
+        {
+          "key": "startup-script",
+          "value": """#!/bin/bash
+
+# install deps
+apt-get install -y build-essential python-dev
+
+# load reporter
+curl -O http://psutil.googlecode.com/files/psutil-0.6.1.tar.gz
+tar xvfz psutil-0.6.1.tar.gz
+cd psutil-0.6.1
+python setup.py install
+cd ..
+rm -rf psutil-0.6.1
+rm psutil-0.6.1.tar.gz
+curl -O https://raw.github.com/dataarts/tailbone/mesh/tailbone/compute_engine/load_reporter.py
+python load_reporter.py &
+
+# websocket server
+curl -O https://pypi.python.org/packages/source/t/tornado/tornado-3.0.1.tar.gz
+tar xvfz tornado-3.0.1.tar.gz
+cd tornado-3.0.1
+python setup.py install
+cd ..
+rm -rf tornado-3.0.1
+rm tornado-3.0.1.tar.gz
+curl -O https://raw.github.com/dataarts/tailbone/mesh/tailbone/compute_engine/websocket/websocket.py
+python websocket.py 
+
+""",
+        },
+      ],
+    }
+  })
+
+class WebsocketHandler(BaseHandler):
   @as_json
-  def post(self):
-    client_id = self.request.get('from')
-    try:
-      client_id = int(client_id)
-    except:
-      pass
-    logging.info("Connecting client id {}".format(client_id))
-
-
-class DisconnectedHandler(BaseHandler):
-  @as_json
-  def post(self):
-    client_id = self.request.get('from')
-    try:
-      client_id = int(client_id)
-    except:
-      pass
-    logging.info("Disconnecting client id {}".format(client_id))
-    unbind(client_id)
-
-
-class ChannelHandler(BaseHandler):
-  @as_json
-  def get(self, name):
-    # TODO(doug): add better client_id generation
-    data = parse_body(self)
-    method = data.get("method")
-    client_id = data.get("client_id")
-    if method == "token":
-      return {"token": channel.create_channel(str(client_id))}
-    elif method == "bind":
-      bind(client_id, data.get("name"))
-    elif method == "unbind":
-      unbind(client_id, data.get("name"))
-    elif method == "trigger":
-      trigger(data.get("name"), data.get("payload"))
-
-
-EXPORTED_JAVASCRIPT = compile_js([
-  "tailbone/channel/channel.js",
-], ["Channel"])
+  def get(self):
+    instance = LoadBalancer.find(TailboneWebsocketInstance, self.request)
+    return {
+      "ws": "ws://{}:{}".format(instance.address, WEBSOCKET_PORT)
+    }
 
 
 app = webapp2.WSGIApplication([
-  (r"{}channel/.*".format(PREFIX), ChannelHandler),
+  (r"{}compute_engine/websocket/.*".format(PREFIX), WebsocketHandler),
   ], debug=DEBUG)
 
-
-connected = webapp2.WSGIApplication([
-  ("/_ah/channel/connected/", ConnectedHandler),
-  ("/_ah/channel/disconnected/", DisconnectedHandler),
-  ], debug=DEBUG)
