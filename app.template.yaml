@@ -1,5 +1,5 @@
-application: foldedfury
-version: test
+application: your-application-id
+version: master
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -47,11 +47,6 @@ builtins:
   - deferred: on
   - admin_redirect: on
   - remote_api: on
-
-# Neccessary only for the JWT Credentials when developing locally and using the compute_engine module
-libraries:
-  - name: "pycrypto"
-    version: "latest"
 
 inbound_services:
   - warmup
