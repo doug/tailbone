@@ -19,7 +19,7 @@ includes:
   ## Clocksync simple synchronization of clocks
   # - tailbone/clocksync
   ## Websocket+WebRTC based mesh server with rooms and load balancing
-  - tailbone/mesh
+  # - tailbone/mesh
   ## Order in this list is important for restful and pathrewrite, they must be last.
   ## Restful resources
   - tailbone/restful

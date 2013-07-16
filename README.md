@@ -1,9 +1,12 @@
-# ![Tailbone](http://workshop.chromeexperiments.com/img/tailbone.gif) Tailbone - Restful App Engine and then some
+# ![Tailbone](http://workshop.chromeexperiments.com/img/tailbone.gif) Tailbone - Restful App Engine Modules
 
 ### Preamble
 
-[App Engine](http://appengine.google.com/) is cheap, fast, and awesome. Using it for the first time is sometimes&hellip;well&hellip;different. There are tons of frameworks like [Django](https://www.djangoproject.com/) or others out there that work with App Engine,
-but these days we write almost all our applications in JavaScript with [AngularJS](http://angularjs.org/) or [Backbone.js](http://backbonejs.org/), we just
+[App Engine](http://appengine.google.com/) is cheap, fast, and awesome. Using it for the first time 
+is sometimes&hellip;well&hellip;different. There are tons of frameworks like 
+[Django](https://www.djangoproject.com/) or others out there that work with App Engine,
+but these days we write almost all our applications in JavaScript with 
+[AngularJS](http://angularjs.org/) or [Backbone.js](http://backbonejs.org/), we just
 need a simple backend to do its part. The App Engine server side APIs are great and for more
 complex things we recommend you learn them and use them.
 All this hopes to do is ease that barrier of use and get people writing
@@ -12,18 +15,15 @@ That said, writing more code on your backend is great if you are up to it,
 we can’t recommend [Go](http://golang.org/) enough for doing that, it's a wonderful language.
 
 Anyway, this was written in spare time to fill a need and hopefully others find it useful too.
-It provides a simple [RESTful](http://en.wikipedia.org/wiki/Representational_state_transfer) backend setup for App Engine so you can write your apps in JavaScript
+It provides a simple [RESTful](http://en.wikipedia.org/wiki/Representational_state_transfer) 
+backend setup for App Engine so you can write your apps in JavaScript
 via frameworks like AngularJS, Backbone, etc. and not have to touch any App Engine code. Or just
 using plain JavaScript and your own `xhr` calls. All your static resources are automatically served
-from `client/app`. App Engine is great at static serving and if you turn on [PageSpeed](https://developers.google.com/appengine/docs/adminconsole/performancesettings)
+from `client/app`. App Engine is great at static serving and if you 
+turn on [PageSpeed](https://developers.google.com/appengine/docs/adminconsole/performancesettings)
 on App Engine you get automatic optimization of your images and scripts, as well as other goodies
-all for free. It even supports large file uploads and serving via the [Google Blobstore](https://developers.google.com/appengine/docs/python/blobstore/overview).
-
-### An Overview of an Example Use Case
-
-Draw an image with `canvas` via JavaScript. Upload it via `ajax` and serve variable
-sized thumbnails efficiently of that image. There is a simple example in the [QUnit tests](https://github.com/dataarts/tailbone/blob/master/tailbone/test).
-It also has experimental support for model validation and full text search.
+all for free. It even supports large file uploads and serving 
+via the [Google Blobstore](https://developers.google.com/appengine/docs/python/blobstore/overview).
 
 ### Guiding Principles
 
@@ -35,14 +35,8 @@ It also has experimental support for model validation and full text search.
 
 [Style Guide](http://google-styleguide.googlecode.com/svn/trunk/pyguide.html)
 
-### A Word About Tailbone.js
-
-Finally, for added capabilities, there is a JavaScript library served up which
-does additional niceties like bi-directional binding of your model and your backend to a JavaScript
-structure with simplified querying. The JavaScript library is pretty alpha don’t think we would
-necessarily rely on that part just yet.
-
 - [Status](#status)
+- [Getting Started](#getting-started)
 - [Special URLS](#special-urls)
     - [/api/(yourModelName)](#restful-models)
     - [Access Control](#access-control)
@@ -55,50 +49,69 @@ necessarily rely on that part just yet.
     - [Including](#how-to-include)
     - [Exported Methods](#exported-methods)
     - [Examples](#examples)
-- Annotated Source Code
-    - [tailbone.py](docs/tailbonepy.html)
-    - [tailbone.js](docs/tailbonejs.html)
+- [Extending Tailbone](#extending-tailbone)
 
 ## Status
 
 This is a side project made out of past experiences. That being said there are a few rough edges.
-Also working on a `Go` branch with the same api. If you want to contribute please add a test for any fix or feature before you file a pull request.
+Also working on a `Go` branch with the same api. 
+If you want to contribute please add a test for any fix or feature before you file a pull request.
 For the testing you need to start the dev server by running `dev_appserver.py --clear_datastore=yes .` and
-browsing to `http://localhost:8080/api/test/(testname)` for example `http://localhost:8080/api/test/restful`. These are [QUnit](http://qunitjs.com/) JavaScript tests and should be the
+browsing to `http://localhost:8080/test/(testname)` for example `http://localhost:8080/test/restful`. 
+These are [QUnit](http://qunitjs.com/) JavaScript tests and should be the
 same in either go, python or any future language to support consistency of
-any implementation of the api. Note, these tests modify the `db`, and can only be run locally.
+any implementation of the api. Note, these tests modify the `db`, and will only run locally.
 
 
 ## Getting Started
 
-How to get started:
+#### Tailbone utility helper:
+
+- Install tailbone
+
+        brew install tailbone
+
+- Initialize a new tailbone project
+
+        mkdir myproject
+        cd myproject
+        git init
+        tailbone init
+
+- Start the dev server
+
+        tailbone serve
+
+- Deploy to app engine {version} is your own version name, e.g. 'master'
+
+        tailbone deploy {version}
+
+#### Manual steps to get started:
 
 - First, make sure you have the
-  [app engine dev tools](https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python)
-  installed for Python. Note, tailbone uses
+  [Google Cloud SDK for Python](https://developers.google.com/cloud/sdk/). Note, tailbone uses
   the [Python 2.7](http://www.python.org/download/releases/2.7/) version so make sure your default python is at least 2.7.
 
-- Second, clone the repo to the name of your target project
+- Second, create a folder and git repo for your new project 
 
-        git clone https://github.com/doug/tailbone.git myproject
-
-    Add this to your dot files `alias tailbone="git clone https://github.com/doug/tailbone.git"`
-    so you can just type `tailbone myproject`
-
-- Third, create your app in any js framework or static html you want. Tailbone `gitignores` the client
-  folder so anything you put there will be ignored making updating to the latests tailbone as simple
-  as git pull. This allows you to have a disconnected git repo of your own to store you application
-  code.
-
+        mkdir myproject
         cd myproject
-        mkdir -p client/app
-        cd client/app
-        echo "<html><body>hello world</body></html>" > index.html
+        git init 
 
-- Lastly, start the server like a normal app engine app
+- Third, add tailbone as a submodule to your project
 
-        cd ../../..
-        dev_appserver.py .
+        git submodule add https://github.com/dataarts/tailbone
+        git submodule update --init --recursive
+
+- Third, create your app in any js framework or static html you want. As well as copy the app.yaml from the tailbone template.
+
+        cp tailbone/app.template.yaml app.yaml
+        mkdir app
+        echo "<html><body>hello world</body></html>" > app/index.html
+
+- Lastly, start the server like a normal app engine app, but remember to do so from the tailbone directory.
+
+        dev_appserver.py tailbone
         open http://localhost:8080
 
 __N.B:__ For you javascript development we recommend two things [yeoman](http://yeoman.io) for
@@ -152,9 +165,10 @@ projected property).
 + if owners is not listed as one of the projected properties then only public properties
 will be returned, because owners is needed to check ownership.
 
-All restful models have two special properties:
+All restful models have three special properties:
 + `Id`: a public id for the model
 + `owners`: a private list of user ids which represent the owners for this model. By default this includes the user who created it.
++ `viewers`: a private list of user ids which represent the viewers for this model. By default this includes no one.
 
 Special types include:
 + __Geolocations__: this occurs when you serialize your json data as `{"lat": NUMBER, "lon": NUMBER}`
@@ -178,7 +192,7 @@ JSON.parse = function(json) {
 };
 ```
 
-Note: this is available in `/tailbone.base.js`.
+Note: By including `/tailbone.js` this is automatically added.
 
 ### Access Control:
 
@@ -201,6 +215,8 @@ $.ajax({
 While you have to be authenticated, at the time of this writing you can still write anything to the datastore. This is fantastic for rapid development and changing schemas. However, you might want to be more strict once you deploy your application. In order to help, Tailbone does simple [regex validation](https://github.com/dataarts/tailbone/blob/master/validation.template.json) of all properties.
 
 This is a map of a model name to a series of properties. Anything that is an empty string will effectively bypass validation. Everything else will be parsed as a regex and verified against you and your users requests.
+
+validation.json should be created in your root project directory (one level above the tailbone submodule).
 
 __N.B:__ This is still experimental and not full vetted. Don’t hesitate to file any issues when you find bugs. Finally, as in the example below you will need to escape any `'`’s in your regular expression.
 
@@ -240,34 +256,6 @@ This validates a bunch of things on `/api/todos/` and lets anything through on `
 
     /api/logout
       Logs you out.
-
-Tailbone.js, documented [farther down the page](https://github.com/dataarts/tailbone#tailbonejs), also provides some helpers for logging in and out. See the QUnit tests for an example.
-Note, there is also a popup version, but since Chrome started more aggressively blocking popups being able to create a url that calls a javascript callback via [PostMessage](https://developer.mozilla.org/en-US/docs/DOM/window.postMessage) is more useful.
-
-```javascript
-asyncTest('Login', function() {
-
-  var User = tailbone.User;
-
-  var a = document.createElement('a');
-  a.appendChild(document.createTextNode('Login Test'));
-  User.logout(function() {
-    User.get('me', null, function(d) {
-      ok(d.error == 'LoginError', d);
-      var link = User.login_callback_url(function() {
-        User.get('me', function(d) {
-          ok(d.Id !== undefined, d.Id);
-          document.body.removeChild(a);
-          start();
-        });
-      });
-      a.href = link;
-      a.target = '_blank';
-    });
-  });
-  document.body.appendChild(a);
-});
-```
 
 
 ### Large Files:
@@ -365,24 +353,13 @@ asyncTest('Upload file', function() {
 });
 ```
 
-### Events:
-
-    /api/events/
-      A special api call used for sending and receiving events across clients.
-
-One way to leverage this is by using Tailbone.js. It implements through event functions:
-
-    tailbone.bind("name", function() { console.log("callback"); });
-    tailbone.trigger("name");
-    tailbone.unbind("name");
-
 ### Search:
 
     /api/search/?q=myquery
       Full text search of models.
       A special api call used for doing full text search of models.
 
-To enable this experimental feature you need to create a [searchable.json](https://github.com/dataarts/tailbone/blob/master/searchable.template.json) which lists which properties on which models are indexed and how they are indexed. Read more about search [here](https://developers.google.com/appengine/docs/python/search/overview).
+To enable this experimental feature you need to create a [searchable.json](https://github.com/dataarts/tailbone/blob/master/searchable.template.json) which lists which properties on which models are indexed and how they are indexed. Read more about search [here](https://developers.google.com/appengine/docs/python/search/overview). seachable.json should be created in your main project directory.
 
 Example searchable.json
 
@@ -404,14 +381,10 @@ Example searchable.json
 
 ### How to include:
 
-In order to use Tailbone.js include the following in your html. If you don’t want to use jquery then you must define `$.ajax` yourself prior to importing Tailbone.js:
+Many modules in tailbone need a little bit of javascript to help them work. All of that javascript gets concatenated and served at /tailbone.js. 
 
 ```html
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-<script src="/_ah/channel/jsapi" type="text/javascript" charset="utf-8"></script>
-<script src="/tailbone.base.js" type="text/javascript" charset="utf-8"></script>
-<script src="/tailbone.events.js" type="text/javascript" charset="utf-8"></script>
-<script src="/tailbone.models.js" type="text/javascript" charset="utf-8"></script>
+<script src="/tailbone.js"></script>
 ```
 
 In order to support older browsers also include this before the other two scripts:
@@ -435,9 +408,6 @@ In order to support older browsers also include this before the other two script
 + `ORDER`: Create an order `ORDER`.
 + `AND`: `AND` of two or more filters.
 + `OR`: `OR` of two or more filters.
-+ `trigger`: trigger an event.
-+ `bind`: bind a JavaScript function by name.
-+ `unbind`: unbind a JavaScript function by name.
 
 ### Examples:
 
