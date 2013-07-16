@@ -60,6 +60,7 @@ skip_files:
   - ^(.*/)?.*\.py[co]
   - ^(.*/)?.*/RCS/.*
   - ^(.*/)?\..*
+  - ^client/tailbone/.*
 
 pagespeed:
   # domains_to_rewrite:
