@@ -1,5 +1,18 @@
 # ![Tailbone](http://workshop.chromeexperiments.com/img/tailbone.gif) Tailbone - Restful AppEngine
 
+### TL;DR
+
+        brew install tailbone
+        mkdir myproject
+        cd myproject
+        git init
+        tailbone init
+        tailbone serve
+        open localhost:8080
+        # <Ctrl-C> to stop local server
+        tailbone deploy master
+
+
 ### Preamble
 
 [App Engine](http://appengine.google.com/) is cheap, fast, and awesome. Using it for the first time 
@@ -29,8 +42,9 @@ via the [Google Blobstore](https://developers.google.com/appengine/docs/python/b
 
 - Do as little as possible server side, if it can be done on the client do it there.
 - Be as modular as possible so people can mix and match how they choose.
-- Only need to edit the app.yaml or at most a few json config files.
+- Only need to edit the app.yaml and appengine_config.py.
 - Should work out of the box how most people plan to use it.
+- Start with loose security, but be able to harden as you approach launch.
 - Be backend implementation agnostic, whether it is Go or Python or something else have a unified javascript interface.
 
 [Style Guide](http://google-styleguide.googlecode.com/svn/trunk/pyguide.html)
