@@ -1,4 +1,4 @@
-# ![Tailbone](http://workshop.chromeexperiments.com/img/tailbone.gif) Tailbone - Restful App Engine Modules
+# ![Tailbone](http://workshop.chromeexperiments.com/img/tailbone.gif) Tailbone - Restful AppEngine
 
 ### Preamble
 
@@ -79,6 +79,7 @@ If you want to contribute please add a test for any fix or feature before you fi
 - Start the dev server
 
         tailbone serve
+        open localhost:8080
 
 - Deploy to app engine {version} is your own version name, e.g. 'master'
 
@@ -118,9 +119,9 @@ javascript application framework.
 
 ## Modules
 
-### restful:
+## restful
 
-#### RESTful url pattern
+#### Resources:
 
     POST /api/{modelname}/
       Creates an object.
@@ -216,7 +217,7 @@ While you have to be authenticated, at the time of this writing you can still wr
 
 This is a map of a model name to a series of properties. Anything that is an empty string will effectively bypass validation. Everything else will be parsed as a regex and verified against you and your users requests.
 
-validation.json should be created in your root project directory (one level above the tailbone submodule).
+`validation.json` should be created in your root project directory (one level above the tailbone submodule).
 
 __N.B:__ This is still experimental and not full vetted. Don’t hesitate to file any issues when you find bugs. Finally, as in the example below you will need to escape any `'`’s in your regular expression.
 
@@ -258,13 +259,13 @@ This validates a bunch of things on `/api/todos/` and lets anything through on `
       Logs you out.
 
 
-### search:
+## search
 
     /api/search/?q=myquery
       Full text search of models.
       A special api call used for doing full text search of models.
 
-To enable this experimental feature you need to create a [searchable.json](https://github.com/dataarts/tailbone/blob/master/searchable.template.json) which lists which properties on which models are indexed and how they are indexed. Read more about search [here](https://developers.google.com/appengine/docs/python/search/overview). seachable.json should be created in your main project directory.
+To enable this experimental feature you need to create a [searchable.json](https://github.com/dataarts/tailbone/blob/master/searchable.template.json) which lists which properties on which models are indexed and how they are indexed. Read more about search [here](https://developers.google.com/appengine/docs/python/search/overview). `seachable.json` should be created in your main project directory.
 
 Example searchable.json
 
@@ -282,7 +283,7 @@ Example searchable.json
 }
 ```
 
-### files:
+## files
 
     GET /api/files/create
       Call prior to uploading files. Returns an object with an "upload_url" property. POST files there.
@@ -377,17 +378,17 @@ asyncTest('Upload file', function() {
 });
 ```
 
-### geoip:
+## geoip
 
         GET /api/geoip
 
-        Get the nearest geoip look up to the users ip address as well as return their remote address.
+Get the nearest geoip look up to the users ip address as well as return their remote address.
 
-### pathrewrite
+## pathrewrite
 
-        This module makes all paths be returned as app/index.html. Useful when creating an html5 history mode application, that does routing in javascript.
+This module makes all paths be returned as app/index.html. Useful when creating an html5 history mode application, that does routing in javascript.
 
-### proxy
+## proxy
 
         GET /api/proxy?url=http://www.google.com
 
@@ -396,7 +397,7 @@ You can restrict which domains are allowed by editing appengine_config.py with
 
         tailbone_proxy_RESTRICTED_DOMAINS = ["google.com"]
 
-### mesh
+## mesh
 
 This module helps create a mesh network for which will use websockets and try to upgrade to webrtc where possible. You will need to enable billing and the compute_engine api since this uses compute_engine to start and maintain TURN servers and Websocket servers.
 
@@ -416,11 +417,11 @@ This module helps create a mesh network for which will use websockets and try to
   mesh.trigger('test', 7)
 ```
 
-### compute_engine
+## compute_engine
 
 Compute engine is the lower level library for load balancing compute engine instances, see some of the examples in there for how to extend it.
 
-### static
+## static
 
 Static content serving. You can change the authorization mechanism for the site in appengine_config.py. Defaults to public.
 
@@ -429,7 +430,7 @@ def my_auth_function(request):
 
 tailbone_static_authorized = my_auth_function
 
-### test
+## test
 
 For the testing you need to start the dev server by running `dev_appserver.py --clear_datastore=yes .` and
 browsing to `http://localhost:8080/test/(testname)` for example `http://localhost:8080/test/restful`. 
