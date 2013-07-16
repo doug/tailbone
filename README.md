@@ -37,14 +37,17 @@ via the [Google Blobstore](https://developers.google.com/appengine/docs/python/b
 
 - [Status](#status)
 - [Getting Started](#getting-started)
-- [Special URLS](#special-urls)
-    - [/api/(yourModelName)](#restful-models)
-    - [Access Control](#access-control)
-    - [Validation](#validation)
-    - [/api/users](#user-models)
-    - [/api/files](#large-files)
-    - [/api/events](#events)
-    - [/api/search](#search)
+- [Modules](#modules)
+    - [restful](#restful)
+    - [search](#search)
+    - [files](#files)
+    - [geoip](#geoip)
+    - [pathrewrite](#pathrewrite)
+    - [proxy](#proxy)
+    - [mesh](#mesh)
+    - [compute_engine](#compute_engine)
+    - [static](#static)
+    - [test](#test)
 - [Taibone.js](#tailbonejs)
     - [Including](#how-to-include)
     - [Exported Methods](#exported-methods)
@@ -56,11 +59,6 @@ via the [Google Blobstore](https://developers.google.com/appengine/docs/python/b
 This is a side project made out of past experiences. That being said there are a few rough edges.
 Also working on a `Go` branch with the same api. 
 If you want to contribute please add a test for any fix or feature before you file a pull request.
-For the testing you need to start the dev server by running `dev_appserver.py --clear_datastore=yes .` and
-browsing to `http://localhost:8080/test/(testname)` for example `http://localhost:8080/test/restful`. 
-These are [QUnit](http://qunitjs.com/) JavaScript tests and should be the
-same in either go, python or any future language to support consistency of
-any implementation of the api. Note, these tests modify the `db`, and will only run locally.
 
 
 ## Getting Started
@@ -118,9 +116,11 @@ __N.B:__ For you javascript development we recommend two things [yeoman](http://
 bootstrapping and installing js libraries and [angularjs](http://angularjs.org) for your MVC
 javascript application framework.
 
-## Special URLS
+## Modules
 
-### RESTful Models:
+### restful:
+
+#### RESTful url pattern
 
     POST /api/{modelname}/
       Creates an object.
@@ -134,7 +134,7 @@ javascript application framework.
     GET /api/{modelname}/?filter={propertyname==somevalue}&order={propertyname}&projection={propertyname1,propertyname2}
       Query a type.
 
-### Nested resources:
+#### Nested resources:
 
     POST /api/{parent_modelname}/{parent_id}/{modelname}/
       Creates a (nested) object as child of a given parent model.
@@ -194,7 +194,7 @@ JSON.parse = function(json) {
 
 Note: By including `/tailbone.js` this is automatically added.
 
-### Access Control:
+#### Access Control:
 
 Public private exposure of properties on a model is controlled by capitalization of the first letter, similar to `Go`. All models except for `users` have a private owners list which is just a list of user ids that can access and change the private variables of a model. This is prepopulated with the person who first creates this model. __Only the signed in
 user can edit information on their `users` model__. We thought about owners vs. editors to grant access rights like many other systems, but thought it out of scope for this first pass. This is about rapid prototyping.
@@ -210,7 +210,7 @@ $.ajax({
 })
 ```
 
-### Validation:
+#### Validation:
 
 While you have to be authenticated, at the time of this writing you can still write anything to the datastore. This is fantastic for rapid development and changing schemas. However, you might want to be more strict once you deploy your application. In order to help, Tailbone does simple [regex validation](https://github.com/dataarts/tailbone/blob/master/validation.template.json) of all properties.
 
@@ -243,7 +243,7 @@ __N.B:__ This is still experimental and not full vetted. Don’t hesitate to fil
 
 This validates a bunch of things on `/api/todos/` and lets anything through on `/api/documents_with_anything`. No other models will be admitted to your database.
 
-### User Models:
+#### User Models:
 
     /api/users/
       Special restful model that can only be edited by the user, authentication via Google Account.
@@ -258,7 +258,31 @@ This validates a bunch of things on `/api/todos/` and lets anything through on `
       Logs you out.
 
 
-### Large Files:
+### search:
+
+    /api/search/?q=myquery
+      Full text search of models.
+      A special api call used for doing full text search of models.
+
+To enable this experimental feature you need to create a [searchable.json](https://github.com/dataarts/tailbone/blob/master/searchable.template.json) which lists which properties on which models are indexed and how they are indexed. Read more about search [here](https://developers.google.com/appengine/docs/python/search/overview). seachable.json should be created in your main project directory.
+
+Example searchable.json
+
+```javascript
+{
+  "todos": {
+    "_index": "optional_field_for_name_of_index_default_if_not_defined",
+    "item": "TextField",
+    "snippet": "HtmlField",
+    "slug": "AtomField",
+    "value": "NumberField",
+    "dayof": "DateField",
+    "place": "GeoField"
+  }
+}
+```
+
+### files:
 
     GET /api/files/create
       Call prior to uploading files. Returns an object with an "upload_url" property. POST files there.
@@ -353,77 +377,72 @@ asyncTest('Upload file', function() {
 });
 ```
 
-### Search:
+### geoip:
 
-    /api/search/?q=myquery
-      Full text search of models.
-      A special api call used for doing full text search of models.
+        GET /api/geoip
 
-To enable this experimental feature you need to create a [searchable.json](https://github.com/dataarts/tailbone/blob/master/searchable.template.json) which lists which properties on which models are indexed and how they are indexed. Read more about search [here](https://developers.google.com/appengine/docs/python/search/overview). seachable.json should be created in your main project directory.
+        Get the nearest geoip look up to the users ip address as well as return their remote address.
 
-Example searchable.json
+### pathrewrite
 
-```javascript
-{
-  "todos": {
-    "_index": "optional_field_for_name_of_index_default_if_not_defined",
-    "item": "TextField",
-    "snippet": "HtmlField",
-    "slug": "AtomField",
-    "value": "NumberField",
-    "dayof": "DateField",
-    "place": "GeoField"
-  }
-}
-```
+        This module makes all paths be returned as app/index.html. Useful when creating an html5 history mode application, that does routing in javascript.
 
-## Tailbone.js
+### proxy
 
-### How to include:
+        GET /api/proxy?url=http://www.google.com
 
-Many modules in tailbone need a little bit of javascript to help them work. All of that javascript gets concatenated and served at /tailbone.js. 
+This module proxies a given url, useful for issues where CORS restricts access to a resource in javascript.
+You can restrict which domains are allowed by editing appengine_config.py with 
+
+        tailbone_proxy_RESTRICTED_DOMAINS = ["google.com"]
+
+### mesh
+
+This module helps create a mesh network for which will use websockets and try to upgrade to webrtc where possible. You will need to enable billing and the compute_engine api since this uses compute_engine to start and maintain TURN servers and Websocket servers.
 
 ```html
 <script src="/tailbone.js"></script>
 ```
 
-In order to support older browsers also include this before the other two scripts:
-
-```html
-<!--[if lt IE 7]>
-    <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
-<![endif]-->
-<!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/es5-shim/1.2.4/es5-shim.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/json3/3.2.4/json3.min.js"></script>
-<![endif]-->
-```
-
-
-### Exported methods:
-
-+ `Model`: `ModelFactory` that creates a new model type.
-+ `User`: Automatically created special model for user’s info.
-+ `FILTER`: Create a filter `FILTER`.
-+ `ORDER`: Create an order `ORDER`.
-+ `AND`: `AND` of two or more filters.
-+ `OR`: `OR` of two or more filters.
-
-### Examples:
-
 ```javascript
-var Todo = new tailbone.Model("todos");
-var todos = Todo.query().filter("text =", "Go to store").order("-date");
-
-var todo = new Todo();
-todo.text = "Go to store";
-todo.date = Date.now()
-todo.$save();
-
-todos.onchange = function() {
-  todos.forEach(function(item, idx) {
-    console.log(idx, item);
+  var mesh = new tailbone.Mesh();
+  mesh.bind('connect', function() {
+    console.log('mesh connected');
   });
-};
+  mesh.bind('test', function(x) {
+    console.log('somone sent a test event');
+    console.log(x, 'should be 7');
+  });
+  mesh.trigger('test', 7)
 ```
 
+### compute_engine
+
+Compute engine is the lower level library for load balancing compute engine instances, see some of the examples in there for how to extend it.
+
+### static
+
+Static content serving. You can change the authorization mechanism for the site in appengine_config.py. Defaults to public.
+
+def my_auth_function(request):
+  return True
+
+tailbone_static_authorized = my_auth_function
+
+### test
+
+For the testing you need to start the dev server by running `dev_appserver.py --clear_datastore=yes .` and
+browsing to `http://localhost:8080/test/(testname)` for example `http://localhost:8080/test/restful`. 
+These are [QUnit](http://qunitjs.com/) JavaScript tests and should be the
+same in either go, python or any future language to support consistency of
+any implementation of the api. Note, these tests modify the `db`, and will only run locally.
+
+The tests are accessible at /api/test/{module_name} for example /api/test/restful
+
+
+## Extending Tailbone
+
+Tailbone can be extended by creating a appengine_config.py file in your root directory. Copy it from the template inside tailbone/appengine_config.template.py.
+Use this to extend tailbone with any hooks to modify the behavior of tailbone, such as a different authentication mechanism or various module constants. Examples are all commented out in the appengine_config.template.py. See [Python Module Configuration](https://developers.google.com/appengine/docs/python/tools/appengineconfig)
+
+Additionally, you can turn on and off modules by changing what is included in the app.yaml. You can also add your own modules by adding additional incude.yaml paths the app.yaml file.
