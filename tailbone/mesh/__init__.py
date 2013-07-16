@@ -65,7 +65,7 @@ def get_or_create_room(request, name=None):
   if not address:
     if DEBUG:
       class DebugInstance(object):
-        address = request.remote_addr or "localhost"
+        address = request.remote_addr if str(request.remote_addr) != "::1" else "localhost"
       instance = DebugInstance()
     else:
       instance = LoadBalancer.find(websocket.TailboneWebsocketInstance, request)
