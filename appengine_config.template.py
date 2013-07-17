@@ -17,8 +17,9 @@
 
 ## Base Tailbone overrides and hooks
 
-## Set a specific namespace to use None is main, and "version" uses the app version
-# tailbone_NAMESPACE =  
+## Set the global default namespace
+# def namespace_manager_default_namespace_for_request():
+#   return "my_custom_namespace"
 
 ## Use JSONP for all apis
 # tailbone_JSONP = False

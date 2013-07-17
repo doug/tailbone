@@ -44,7 +44,6 @@ class _ConfigDefaults(object):
   JSONP = False
   SERVICE_EMAIL = None
   SERVICE_KEY_PATH = None
-  NAMESPACE = None
 
   def is_current_user_admin(*args, **kwargs):
     return api.users.is_current_user_admin(*args, **kwargs)
