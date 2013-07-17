@@ -37,7 +37,12 @@
 
 ## If specified is a list of tailbone.restful.ScopedModel objects these will be the only ones allowed.
 ## This is a next level step of model restriction to your db, this replaces validation.json
-# tailbone_restful_RESTRICTED_MODELS = {"mymodel": MyModel, "other": MyOtherModel}
+# from google.appengine.ext import ndb
+# from tailbone.restful import ScopedModel
+# class MyModel(ScopedModel):
+#   stuff = ndb.IntegerProperty()
+# tailbone_restful_DEFINED_MODELS = {"mymodel": MyModel}
+# tailbone_restful_RESTRICT_TO_DEFINED_MODELS = False
 
 ## Protected model names gets overridden by RESTRICTED_MODELS
 # tailbone_restful_PROTECTED_MODEL_NAMES = ["(?i)tailbone.*", "custom", "(?i)users"]
