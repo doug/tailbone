@@ -126,13 +126,13 @@ func run(action string) (err error) {
 func main() {
 	flag.Parse()
 
+	flag.Usage = func() {
+		fmt.Printf(USAGE_TEMPLATE)
+	}
+
 	if flag.NArg() < 1 {
 		flag.Usage()
 		os.Exit(1)
-	}
-
-	flag.Usage = func() {
-		fmt.Printf(USAGE_TEMPLATE)
 	}
 
 	cmdname := flag.Arg(0)
