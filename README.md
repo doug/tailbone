@@ -65,14 +65,11 @@ via the [Google Blobstore](https://developers.google.com/appengine/docs/python/b
     - [geoip](#geoip)
     - [pathrewrite](#pathrewrite)
     - [proxy](#proxy)
+    - [clocksync](#clocksync)
     - [mesh](#mesh)
     - [compute_engine](#compute_engine)
     - [static](#static)
     - [test](#test)
-- [Taibone.js](#tailbonejs)
-    - [Including](#how-to-include)
-    - [Exported Methods](#exported-methods)
-    - [Examples](#examples)
 - [Extending Tailbone](#extending-tailbone)
 
 ## Status
@@ -413,6 +410,10 @@ This module proxies a given url, useful for issues where CORS restricts access t
 You can restrict which domains are allowed by editing appengine_config.py with 
 
         tailbone_proxy_RESTRICTED_DOMAINS = ["google.com"]
+
+## clocksync
+
+Syncronize clocks across javascript clients. See [javascript code](https://github.com/doug/tailbone/blob/reorg/tailbone/clocksync/clocksync.js)
 
 ## mesh
 
