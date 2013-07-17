@@ -158,30 +158,24 @@ javascript application framework.
     GET /api/{modelname}/?filter={propertyname==somevalue}&order={propertyname}&projection={propertyname1,propertyname2}
       Query a type.
 
-#### Nested resources:
-
-    POST /api/{parent_modelname}/{parent_id}/{modelname}/
-      Creates a (nested) object as child of a given parent model.
-      This will fail is the parent object does not exist
-
-    PUT or POST /api/{parent_modelname}/{parent_id}/{modelname}/{id}
-      Updates an nested object, does a complete overwrite of the properites. This does not do a partial patch.
-      This will fail is the parent object does not exist
-
-    GET /api/{parent_modelname}/{parent_id}/{modelname}/
-      Get a list of child objects for a given parent object.
-      This will fail is the parent object does not exist
-
-    GET /api/{parent_modelname}/{parent_id}/{modelname}/{id}
-      Get a specific nested object.
-
-    DELETE /api/{parent_modelname}/{parent_id}/{modelname}/{id}
-      Deletes a specific nested object.
-      This will fail is the parent object does not exist
-
-Note: this method of creating nested resources creates seperate models for the nested resource, because it is a document store, if you only have a few items to be nested (for example list of mailing addresses for a contact) you can just include them in your model directly as a list of objects.
-
 Any `GET` request can take an optional list of properties to return, the query will use those to make a projection query which will only return those properties from the model. The format of the projection is a comma seperated list of properties: `projection=propertyname1,propertyname2,propertyname3`
+
+#### Extending restful
+
+In `appengine_config.py` in your root directory copied from tailbone/appengine_config.template.py
+
+    from google.appengine.ext import ndb
+    from tailbone.restful import ScopedModel
+    class MyModel(ScopedModel):
+      stuff = ndb.FloatProperty()
+
+    tailbone_restful_DEFINED_MODELS = {"mymodel": MyModel}
+
+This will restrict it so that only `/api/mymodel` will work.
+
+If you want some user defined models plus everything else to work with whatever you give it you can also specify.
+
+    tailbone_restful_RESTRICT_TO_DEFINED_MODELS = False
 
 __N.B:__
 + non indexed properties (such as large text or binary fields cannot be given as a
