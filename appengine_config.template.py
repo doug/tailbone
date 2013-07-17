@@ -37,7 +37,7 @@
 
 ## If specified is a list of tailbone.restful.ScopedModel objects these will be the only ones allowed.
 ## This is a next level step of model restriction to your db, this replaces validation.json
-# tailbone_restful_RESTRICTED_MODELS = [MyModel, MyOtherModel]
+# tailbone_restful_RESTRICTED_MODELS = {"mymodel": MyModel, "other": MyOtherModel}
 
 ## Protected model names gets overridden by RESTRICTED_MODELS
 # tailbone_restful_PROTECTED_MODEL_NAMES = ["(?i)tailbone.*", "custom", "(?i)users"]

@@ -2,15 +2,22 @@
 
 ### TL;DR
 
-        brew install tailbone
-        mkdir myproject
-        cd myproject
-        git init
-        tailbone init
-        tailbone serve
-        open localhost:8080
-        # <Ctrl-C> to stop local server
-        tailbone deploy master
+Install helper and dependencies
+
+    brew install google-app-engine
+    curl https://raw.github.com/doug/tailbone/generator/build/0.1.0/darwin_amd64/tailbone > /usr/local/bin/tailbone
+    chmod 744 /usr/local/bin/tailbone
+
+Your new project
+
+    mkdir myproject
+    cd myproject
+    git init
+    tailbone init
+    tailbone serve
+    open localhost:8080
+    # <Ctrl-C> to stop local server
+    tailbone deploy master
 
 
 ### Preamble
@@ -81,7 +88,9 @@ If you want to contribute please add a test for any fix or feature before you fi
 
 - Install tailbone
 
-        brew install tailbone
+        brew install google-app-engine
+        curl https://raw.github.com/doug/tailbone/generator/build/0.1.0/darwin_amd64/tailbone > /usr/local/bin/tailbone
+        chmod 744 /usr/local/bin/tailbone
 
 - Initialize a new tailbone project
 

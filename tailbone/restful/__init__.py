@@ -78,7 +78,8 @@ class _ConfigDefaults(object):
   # store total model count in metadata field HEAD query
   METADATA = False
   # list of valid models, None means anything goes
-  RESTRICTED_MODELS = None
+  DEFINED_MODELS = None
+  RESTRICT_TO_DEFINED_MODELS = True
   PROTECTED_MODEL_NAMES = ["(?i)(mesh|messages|files|events|admin|proxy)",
                            "(?i)tailbone.*"]
 
@@ -91,6 +92,7 @@ re_type = type(re_public)
 acl_attributes = [u"owners", u"viewers"]
 
 ProtectedModelError = AppError("This is a protected Model.")
+RestrictedModelError = AppError("Models are restricted.")
 
 
 def validate_modelname(model):
@@ -112,7 +114,7 @@ def current_user(required=False):
 # A modifed Expando class that all models derive from, this allows app engine to work as an
 # arbitrary document store for your json objects as well as scope the public private nature of
 # objects based on the capitolization of the property.
-class ScopedExpando(ndb.Expando):
+class ScopedModel(ndb.Model):
   owners = ndb.StringProperty(repeated=True)
   viewers = ndb.StringProperty(repeated=True)
 
@@ -139,7 +141,7 @@ class ScopedExpando(ndb.Expando):
     return False
 
   def to_dict(self, *args, **kwargs):
-    result = super(ScopedExpando, self).to_dict(*args, **kwargs)
+    result = super(ScopedModel, self).to_dict(*args, **kwargs)
     if not self.can_read(current_user()):
       # public properties only
       for k in result.keys():
@@ -155,6 +157,8 @@ class ScopedExpando(ndb.Expando):
     if not m.can_write(u):
       raise AppError("You ({}) do not have permission to delete this model ({}).".format(u, key.id()))
 
+class ScopedExpando(ScopedModel, ndb.Expando):
+  pass
 
 # User
 # ----
@@ -188,41 +192,44 @@ def reflective_create(cls, data):
   m = cls()
   for k, v in data.iteritems():
     m._default_indexed = True
-    t = type(v)
-    if t in [unicode, str]:
-      if len(bytearray(v, encoding="utf8")) >= 500:
-        m._default_indexed = False
-      elif _reISO.match(v):
-        try:
-          values = map(int, re.split('[^\d]', v)[:-1])
-          values[-1] *= 1000  # to account for python using microseconds vs js milliseconds
-          v = datetime.datetime(*values)
-        except ValueError as e:
-          # logging.info("{} key:'{}' value:{}".format(e, k, v))
-          pass
-      elif _reKey.match(v):
-        try:
-          v = ndb.Key(urlsafe=v)
-        except Exception as e:
-          # logging.info("{} key:'{}' value:{}".format(e, k, v))
-          pass
-    elif t == dict:
-      recurse = True
-      if set(v.keys()) == _latlon:
-        try:
-          v = ndb.GeoPt(v["lat"], v["lon"])
-          recurse = False
-        except api.datastore_errors.BadValueError as e:
-          logging.info("{} key:'{}' value:{}".format(e, k, v))
-          pass
-      if recurse:
-        subcls = unicode.encode(k, "ascii", errors="ignore")
-        v = reflective_create(type(subcls, (ndb.Expando,), {}), v)
-    elif t == float:
-      v = float(v)
-    elif t == int:  # currently all numbers are floats for purpose of quering TODO find better solution
-      v = float(v)
-    setattr(m, k, v)
+    if hasattr(m, k):
+      setattr(m, k, v)
+    else:
+      t = type(v)
+      if t in [unicode, str]:
+        if len(bytearray(v, encoding="utf8")) >= 500:
+          m._default_indexed = False
+        elif _reISO.match(v):
+          try:
+            values = map(int, re.split('[^\d]', v)[:-1])
+            values[-1] *= 1000  # to account for python using microseconds vs js milliseconds
+            v = datetime.datetime(*values)
+          except ValueError as e:
+            # logging.info("{} key:'{}' value:{}".format(e, k, v))
+            pass
+        elif _reKey.match(v):
+          try:
+            v = ndb.Key(urlsafe=v)
+          except Exception as e:
+            # logging.info("{} key:'{}' value:{}".format(e, k, v))
+            pass
+      elif t == dict:
+        recurse = True
+        if set(v.keys()) == _latlon:
+          try:
+            v = ndb.GeoPt(v["lat"], v["lon"])
+            recurse = False
+          except api.datastore_errors.BadValueError as e:
+            logging.info("{} key:'{}' value:{}".format(e, k, v))
+            pass
+        if recurse:
+          subcls = unicode.encode(k, "ascii", errors="ignore")
+          v = reflective_create(type(subcls, (ndb.Expando,), {}), v)
+      elif t == float:
+        v = float(v)
+      elif t == int:  # currently all numbers are floats for purpose of quering TODO find better solution
+        v = float(v)
+      setattr(m, k, v)
   return m
 
 
@@ -429,9 +436,17 @@ def validate(cls_name, data):
 class RestfulHandler(BaseHandler):
   def _get(self, model, id, *extra_filters):
     model = model.lower()
-    validate_modelname(model)
-    # TODO(doug) does the model name need to be ascii encoded since types don't support utf-8?
-    cls = users if model == "users" else type(model, (ScopedExpando,), {})
+    cls = None
+    if _config.DEFINED_MODELS:
+      logging.info("\n\nwtf\n\n")
+      cls = users if model == "users" else _config.DEFINED_MODELS.get(model)
+      if not cls and _config.RESTRICT_TO_DEFINED_MODELS:
+        raise RestrictedModelError
+      if cls:
+        model = cls.__name__
+    if not cls:
+      validate_modelname(model)
+      cls = users if model == "users" else type(model, (ScopedExpando,), {})
     if id:
       me = False
       if model == "users":
@@ -460,7 +475,14 @@ class RestfulHandler(BaseHandler):
     if not id:
       raise AppError("Must provide an id.")
     model = model.lower()
-    validate_modelname(model)
+    if model != "users":
+      if _config.DEFINED_MODELS:
+        cls = _config.DEFINED_MODELS.get(model)
+        if _config.RESTRICT_TO_DEFINED_MODELS and not cls:
+          raise RestrictedModelError
+        if cls:
+          model = cls.__name__
+      validate_modelname(model)
     u = current_user(required=True)
     if model == "users":
       if id != "me" and id != u:
@@ -476,7 +498,6 @@ class RestfulHandler(BaseHandler):
 
   def set_or_create(self, model, id, parent_key=None):
     model = model.lower()
-    validate_modelname(model)
     u = current_user(required=True)
     if model == "users":
       if not (id == "me" or id == "" or id == u):
@@ -485,7 +506,16 @@ class RestfulHandler(BaseHandler):
       id = u
       cls = users
     else:
-      cls = type(model, (ScopedExpando,), {})
+      cls = None
+      if _config.DEFINED_MODELS:
+        cls = _config.DEFINED_MODELS.get(model)
+        if not cls and _config.RESTRICT_TO_DEFINED_MODELS:
+          raise RestrictedModelError
+        if cls:
+          model = cls.__name__
+      if not cls:
+        validate_modelname(model)
+        cls = type(model, (ScopedExpando,), {})
     data = parse_body(self)
     key = parse_id(id, model, data.get("Id"))
     clean_data(data)
@@ -562,34 +592,6 @@ def get_model(urlsafekey):
     raise AppError("Model {} does not exists.".format(urlsafekey))
   return m
 
-
-class NestedRestfulHandler(RestfulHandler):
-  @as_json
-  def get(self, parent_model, parent_id, model, id):
-    parent_model = parent_model.lower()
-    validate_modelname(parent_model)
-
-    parent = get_model(parent_id)
-    parent_key = parent.key
-
-    def belongs_to_filter(q):
-      f = ndb.query.FilterNode(parent_key.kind(), "=", parent_key)
-      return q.filter(f)
-    return self._get(model, id, belongs_to_filter)
-
-  def set_or_create(self, parent_model, parent_id, model, id):
-    parent_model = parent_model.lower()
-    validate_modelname(parent_model)
-    parent = get_model(parent_id)
-    return RestfulHandler.set_or_create(self, model, id, parent.key)
-
-  def _delete(self, parent_model, parent_id, model, id):
-    parent_model = parent_model.lower()
-    validate_modelname(parent_model)
-    get_model(parent_id)
-    return RestfulHandler._delete(self, model, id)
-
-
 # Load an optional validation.json
 # --------------------------------
 def compile_validation(target):
@@ -618,6 +620,5 @@ EXPORTED_JAVASCRIPT = compile_js([
 ], ["Model", "User", "FILTER", "ORDER", "AND", "OR"])
 
 app = webapp2.WSGIApplication([
-  (r"{}([^/]+)/([^/]+)/([^/]+)/?(.*)".format(PREFIX), NestedRestfulHandler),
   (r"{}([^/]+)/?(.*)".format(PREFIX), RestfulHandler),
 ], debug=DEBUG)
