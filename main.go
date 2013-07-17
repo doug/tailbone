@@ -57,6 +57,11 @@ func run(action string) (err error) {
 				_, err = io.Copy(appyaml, apptemplate)
 			}
 		}
+		if apptemplate, err := os.Open("tailbone/appengine_config.template.py"); err == nil {
+			if appyaml, err := os.Create("appengine_config.py"); err == nil {
+				_, err = io.Copy(appyaml, apptemplate)
+			}
+		}
 		if _, err = os.Stat("app/index.html"); os.IsNotExist(err) {
 			os.Mkdir("app", 0644)
 			if index, err := os.Create("app/index.html"); err == nil {
