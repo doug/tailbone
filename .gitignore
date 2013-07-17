@@ -1,0 +1,7 @@
+client
+tailbone.pyc
+index.yaml
+.DS_Store
+*.pyc
+Gemfile.lock
+.sass-cache
