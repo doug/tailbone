@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"github.com/crhym3/go-endpoints/endpoints"
 	"regexp"
 )
 
@@ -130,4 +131,5 @@ func init() {
 	if appengine.IsDevAppServer() {
 		http.HandleFunc("/test/", serveJsTests)
 	}
+	endpoints.HandleHttp()
 }

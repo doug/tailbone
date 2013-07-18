@@ -52,6 +52,4 @@ func init() {
   info.Name, info.HttpMethod, info.Path, info.Desc =
     "get", "GET", "geoip", "Get GeoIP information."
 
-  endpoints.HandleHttp()
- 
 }
