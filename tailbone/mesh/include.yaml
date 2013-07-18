@@ -18,3 +18,4 @@ handlers:
 
 includes:
   - tailbone/compute_engine
+  - tailbone/mesh/channel

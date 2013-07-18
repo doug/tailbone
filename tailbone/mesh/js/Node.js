@@ -129,7 +129,11 @@ Node.prototype.connect = function (callback) {
 
   self.setState(Node.STATE.CONNECTING);
 
-  this._signalingChannel = new SocketChannel(this.mesh.self, this);
+  if (ENABLE_WEBSOCKET) {
+    this._signalingChannel = new SocketChannel(this.mesh.self, this);
+  } else {
+    this._signalingChannel = new ChannelChannel(this.mesh.self, this);
+  }
 
   if (self !== self.mesh.self && self.mesh.options.useWebRTC) {
     this._channels.push(new RTCChannel(this.mesh.self, this));

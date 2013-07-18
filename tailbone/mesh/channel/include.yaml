@@ -14,6 +14,6 @@
 
 handlers:
   - url: /api/channel/?.*
-    script: tailbone.channel.app
+    script: tailbone.mesh.channel.app
   - url: /_ah/channel/(dis)?connected/
-    script: tailbone.channel.connected
+    script: tailbone.mesh.channel.connected

@@ -202,7 +202,7 @@ def build_service(service_name, api_version, scopes):
 
 
 # Leave minification etc up to PageSpeed
-def compile_js(files, exports=None):
+def compile_js(files, exports=None, raw_js=None):
   js = "(function(root) {\n" if exports else ""
   for fname in files:
     with open(fname) as f:
@@ -216,6 +216,8 @@ def compile_js(files, exports=None):
     #     submodule = ".".join(submodules[:i+1])
     #     js += "root.{} = root.{} || {{}};\n".format(submodule, submodule)
     #   js += "root.{} = {};\n".format(public, private)
+    if raw_js:
+      js += "\n{}\n".format(raw_js)
     js += "})(this);\n"
   return js
 

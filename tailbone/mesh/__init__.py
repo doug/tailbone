@@ -23,6 +23,7 @@ from tailbone.compute_engine import websocket
 from tailbone.compute_engine import turn
 
 import base64
+import json
 import os
 import random
 import string
@@ -35,9 +36,8 @@ from google.appengine.api import lib_config
 
 class _ConfigDefaults(object):
   ROOM_EXPIRATION = 86400  # one day in seconds
-  ENABLE_TURN = False
   ENABLE_WEBSOCKET = False
-  ENABLE_CHANNEL = False
+  ENABLE_TURN = False
 
   def generate_room_name():
     return generate_word() + "." + generate_word()
@@ -104,13 +104,19 @@ EXPORTED_JAVASCRIPT = compile_js([
   "tailbone/mesh/js/EventDispatcher.js",
   "tailbone/mesh/js/StateDrive.js",
   "tailbone/mesh/js/Channel.js",
+  "tailbone/mesh/js/ChannelChannel.js",
+  "tailbone/mesh/js/ChannelMultiplexer.js",
   "tailbone/mesh/js/SocketChannel.js",
   "tailbone/mesh/js/SocketMultiplexer.js",
   "tailbone/mesh/js/RTCChannel.js",
   "tailbone/mesh/js/Node.js",
   "tailbone/mesh/js/Peers.js",
   "tailbone/mesh/js/Mesh.js",
-], ["Mesh"])
+], ["Mesh"], 
+"""
+var ENABLE_WEBSOCKET = {:d};
+var ENABLE_TURN = {:d};
+""".format(_config.ENABLE_WEBSOCKET, _config.ENABLE_TURN))
 
 app = webapp2.WSGIApplication([
   (r"{}mesh/?(.*)".format(PREFIX), MeshHandler),
