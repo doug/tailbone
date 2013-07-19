@@ -46,7 +46,7 @@ python setup.py install
 cd ..
 rm -rf psutil-0.6.1
 rm psutil-0.6.1.tar.gz
-curl -O https://raw.github.com/dataarts/tailbone/mesh/tailbone/compute_engine/load_reporter.py
+curl -O https://raw.github.com/doug/tailbone/reorg/tailbone/compute_engine/load_reporter.py
 python load_reporter.py &
 
 # websocket server
@@ -57,7 +57,7 @@ python setup.py install
 cd ..
 rm -rf tornado-3.0.1
 rm tornado-3.0.1.tar.gz
-curl -O https://raw.github.com/dataarts/tailbone/mesh/tailbone/compute_engine/websocket/websocket.py
+curl -O https://raw.github.com/doug/tailbone/reorg/tailbone/compute_engine/websocket/websocket.py
 python websocket.py 
 
 """,
