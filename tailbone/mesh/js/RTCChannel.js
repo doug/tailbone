@@ -182,6 +182,8 @@ var DATA_CHANNEL_SUPPORTED = (function() {
   }
 })();
 
+var BANDWIDTH = 64; // 64 kbps
+
 var RTCChannelUtils = {
 
   defaultIceServers: function(channel) {
@@ -196,6 +198,12 @@ var RTCChannelUtils = {
       ice.push(createIceServer('stun:stun.l.google.com:19302'))
     }
     return ice;
+  },
+
+  highBandwidth: function(sdp, bandwidth) {
+    bandwidth = bandwidth || BANDWIDTH;
+    sdp = sdp.replace('b=AS:30', 'b=AS:' + bandwidth);
+    return sdp;
   },
 
   preferOpus: function (sdp) {
@@ -301,6 +309,8 @@ var RTCChannelUtils = {
   sendOffer: function(channel) {
     channel.pc.createOffer(function (desc) {
       desc.sdp = RTCChannelUtils.preferOpus(desc.sdp);
+      desc.sdp = RTCChannelUtils.highBandwidth(desc.sdp);
+      console.log(desc.sdp);
       channel.pc.setLocalDescription(desc);
       channel.remoteNode._trigger('rtc_offer', desc);
     }, function () {
@@ -310,6 +320,9 @@ var RTCChannelUtils = {
 
   sendAnswer: function(channel) {
     channel.pc.createAnswer(function(desc) {
+      desc.sdp = RTCChannelUtils.preferOpus(desc.sdp);
+      desc.sdp = RTCChannelUtils.highBandwidth(desc.sdp);
+      console.log(desc.sdp);
       channel.pc.setLocalDescription(desc);
       channel.remoteNode._trigger('rtc_answer', desc);
     });
@@ -336,7 +349,7 @@ var RTCChannelUtils = {
   },
 
   createDataChannel: function(channel) {
-    var label = 'datachannel';
+    var label = 'mesh';
     // chrome only supports reliable false atm.
     var options = {
       reliable: false

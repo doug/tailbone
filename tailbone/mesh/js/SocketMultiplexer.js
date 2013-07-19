@@ -129,7 +129,7 @@ SocketMultiplexer.prototype.open = function(channel) {
       var channel = self.channels[id];
       channel.setState(Channel.STATE.CLOSED);
       channel.trigger('error', {
-        from: fromChannel.remoteNode.id,
+        from: channel.remoteNode.id,
         timestamp: Date.now(),
         data: ['error']
       });
