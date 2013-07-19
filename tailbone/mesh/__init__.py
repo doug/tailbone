@@ -108,6 +108,7 @@ EXPORTED_JAVASCRIPT = compile_js([
   "tailbone/mesh/js/ChannelMultiplexer.js",
   "tailbone/mesh/js/SocketChannel.js",
   "tailbone/mesh/js/SocketMultiplexer.js",
+  "tailbone/mesh/js/NetChannel.js",
   "tailbone/mesh/js/RTCChannel.js",
   "tailbone/mesh/js/Node.js",
   "tailbone/mesh/js/Peers.js",

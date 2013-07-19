@@ -369,6 +369,18 @@ var RTCChannelUtils = {
         data: ['close', dataChannel]
       });
     };
+
+    // var netChannel = new NetChannel(dataChannel)
+    // channel.netChannel = netChannel;
+    // netChannel.onmessage = function(msg) {
+    //   var s = ab2str(msg);
+    //   data = JSON.parse(s);
+    //   console.log('netchannel', msg);
+    //   channel.trigger('message', {
+    //     timestamp: Date.now(),
+    //     data: data
+    //   });
+    // }
     dataChannel.onmessage = function(e) {
       var data;
       try {
@@ -382,6 +394,7 @@ var RTCChannelUtils = {
         data: data
       });
     };
+    
     return dataChannel;
   },
 
@@ -444,6 +457,7 @@ RTCChannel.prototype.close = function () {
 RTCChannel.prototype.send = function (message) {
   if (this.getState() === Channel.STATE.OPEN) {
     this.dataChannel.send(message);
+    // this.netChannel.send(str2ab(message));
     return true;
   }
   return false;
