@@ -191,13 +191,13 @@ def build_service(service_name, api_version, scopes):
         config.SERVICE_EMAIL,
         key_str,
         scopes)
-      http = credentials.authorize(httplib2.Http(memcache))
+      http = credentials.authorize(httplib2.Http(api.memcache))
       return build(service_name, api_version, http=http)
     else:
       logging.warn("Please create a service account and download your key.")
       return None
   credentials = AppAssertionCredentials(scope=scopes)
-  http = credentials.authorize(httplib2.Http(memcache)) 
+  http = credentials.authorize(httplib2.Http(api.memcache)) 
   return build(service_name, api_version, http=http)
 
 
