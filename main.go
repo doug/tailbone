@@ -63,7 +63,7 @@ func run(action string) (err error) {
 			}
 		}
 		if _, err = os.Stat("app/index.html"); os.IsNotExist(err) {
-			os.Mkdir("app", 0644)
+			os.Mkdir("app", 0744)
 			if index, err := os.Create("app/index.html"); err == nil {
 				index.WriteString(INDEX_TEMPLATE)
 			}
@@ -105,7 +105,7 @@ func run(action string) (err error) {
 				appyaml = reApplication.ReplaceAllStringFunc(appyaml, func(s string) string { return "application: " + application })
 			}
 			appyaml = reVersion.ReplaceAllStringFunc(appyaml, func(s string) string { return "version: " + version })
-			ioutil.WriteFile("app.yaml", []byte(appyaml), 0644)
+			ioutil.WriteFile("app.yaml", []byte(appyaml), 0744)
 			fmt.Println(version)
 			err = pipeCmd("appcfg.py", "update", "--oauth2", "tailbone")
 		}
