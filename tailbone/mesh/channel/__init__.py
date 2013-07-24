@@ -32,20 +32,26 @@ from google.appengine.ext import ndb
 SEPARATOR = "--"
 RETRIES = 3
 
+
 class _ConfigDefaults(object):
   def generate_client_id(request):
     return str(memcache.incr("tailbone_mesh_channel_uid", initial_value=1))
 
+
 _config = lib_config.register("tailbone_mesh_channel", _ConfigDefaults.__dict__)
+
 
 def append_mesh_to_cid(mesh, client_id):
   return "{}{}{}".format(mesh, SEPARATOR, client_id)
 
+
 def extract_mesh_from_cid(client_id):
   return client_id.split(SEPARATOR)[0]
 
+
 class TailbonChannelMesh(ndb.Model):
   clients = ndb.StringProperty(repeated=True)
+
 
 class ConnectedHandler(BaseHandler):
   @as_json
@@ -59,7 +65,7 @@ class ConnectedHandler(BaseHandler):
     if client_id in mesh.clients:
       logging.error("Client id {} already in list".format(client_id))
       return
-    peers = [cid for cid in mesh.clients];
+    peers = [cid for cid in mesh.clients]
     mesh.clients.append(client_id)
     mesh.put()
     # send connect
@@ -70,6 +76,7 @@ class ConnectedHandler(BaseHandler):
     for cid in peers:
       channel.send_message(cid, json.dumps([
         cid, time.time(), enter_msg]))
+
 
 class DisconnectedHandler(BaseHandler):
   @as_json
@@ -94,6 +101,7 @@ class DisconnectedHandler(BaseHandler):
       channel.send_message(cid, json.dumps([
         cid, time.time(), leave_msg]))
 
+
 class ChannelHandler(BaseHandler):
   @as_json
   def get(self, mesh_id, _):
@@ -101,6 +109,7 @@ class ChannelHandler(BaseHandler):
       raise AppError("Must specify mesh id.")
     client_id = append_mesh_to_cid(mesh_id, _config.generate_client_id(self.request))
     return {"token": channel.create_channel(str(client_id))}
+
   @as_json
   def post(self, mesh_id, client_id):
     if mesh_id == "":
@@ -109,6 +118,7 @@ class ChannelHandler(BaseHandler):
       raise AppError("Must specify client id.")
     clients, payload = json.loads(self.request.body)
     msg = json.dumps([client_id, time.time(), payload])
+    logging.info(msg)
     for cid in clients:
       # TODO: assert client_id is in mesh_id
       channel.send_message(cid, msg)
@@ -116,10 +126,10 @@ class ChannelHandler(BaseHandler):
 
 app = webapp2.WSGIApplication([
   (r"{}channel/?([^/]*)/?([^/]*)".format(PREFIX), ChannelHandler),
-  ], debug=DEBUG)
+], debug=DEBUG)
 
 
 connected = webapp2.WSGIApplication([
   ("/_ah/channel/connected/", ConnectedHandler),
   ("/_ah/channel/disconnected/", DisconnectedHandler),
-  ], debug=DEBUG)
+], debug=DEBUG)

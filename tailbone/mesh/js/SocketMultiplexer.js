@@ -97,8 +97,8 @@ SocketMultiplexer.prototype.open = function(channel) {
     }
     var fromChannel = self.channels[from];
     if (fromChannel) {
-      console.log('from', fromChannel.remoteNode.id,
-        'to', fromChannel.localNode.id, data);
+      // console.log('from', fromChannel.remoteNode.id,
+      //   'to', fromChannel.localNode.id, data);
       fromChannel.trigger('message', {
         from: fromChannel.remoteNode.id,
         timestamp: timestamp,

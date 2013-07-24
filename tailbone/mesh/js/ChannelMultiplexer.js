@@ -95,8 +95,8 @@ ChannelMultiplexer.prototype.open = function(channel) {
         }
         var fromChannel = self.channels[from];
         if (fromChannel) {
-          console.log('from', fromChannel.remoteNode.id,
-            'to', fromChannel.localNode.id, data);
+          // console.log('from', fromChannel.remoteNode.id,
+          //   'to', fromChannel.localNode.id, data);
           fromChannel.trigger('message', {
             from: fromChannel.remoteNode.id,
             timestamp: timestamp,
@@ -134,7 +134,7 @@ ChannelMultiplexer.prototype.open = function(channel) {
         }
       };
     }, function() {
-      console.log("Error opening channel.")
+      console.log("Error opening channel.");
       console.log.apply(console, arguments);
     });
 
