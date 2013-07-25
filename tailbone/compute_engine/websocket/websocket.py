@@ -79,6 +79,12 @@ def parse_message(node, message):
   try:
     message_object = json.loads(message)
     to_nodes = message_object[0]
+    # check if it is a list of messages
+    if type(to_nodes[0]) is list:
+      for msg in message_object:
+        to_nodes, message_data = msg
+        send_to_node_ids(to_nodes, node, message_data)
+      return
     message_data = message_object[1]
   except AttributeError as e:
     print e

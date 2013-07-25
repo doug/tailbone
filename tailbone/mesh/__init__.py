@@ -63,15 +63,18 @@ def get_or_create_room(request, name=None):
     room = room_hash(name)
     address = memcache.get(room)
   if not address:
-    if DEBUG:
-      class DebugInstance(object):
-        address = request.remote_addr if str(request.remote_addr) != "::1" else "localhost"
-      instance = DebugInstance()
+    if _config.ENABLE_WEBSOCKET:
+      if DEBUG:
+        class DebugInstance(object):
+          address = request.remote_addr if str(request.remote_addr) != "::1" else "localhost"
+        instance = DebugInstance()
+      else:
+        instance = LoadBalancer.find(websocket.TailboneWebsocketInstance, request)
+      if not instance:
+        raise AppError('Instance not yet ready, try again later.')
+      address = "ws://{}:{}/{}".format(instance.address, websocket.WEBSOCKET_PORT, name)
     else:
-      instance = LoadBalancer.find(websocket.TailboneWebsocketInstance, request)
-    if not instance:
-      raise AppError('Instance not yet ready, try again later.')
-    address = "ws://{}:{}/{}".format(instance.address, websocket.WEBSOCKET_PORT, name)
+      address = '/api/channel/'
     memcache.set(room, address, time=_config.ROOM_EXPIRATION)
   return name, address
 
@@ -114,11 +117,7 @@ EXPORTED_JAVASCRIPT = compile_js([
   "tailbone/mesh/js/Node.js",
   "tailbone/mesh/js/Peers.js",
   "tailbone/mesh/js/Mesh.js",
-], ["Mesh"], 
-"""
-var ENABLE_WEBSOCKET = {:d};
-var ENABLE_TURN = {:d};
-""".format(_config.ENABLE_WEBSOCKET, _config.ENABLE_TURN))
+], ["Mesh"])
 
 app = webapp2.WSGIApplication([
   (r"{}mesh/?(.*)".format(PREFIX), MeshHandler),

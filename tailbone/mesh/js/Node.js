@@ -129,7 +129,7 @@ Node.prototype.connect = function (callback) {
 
   self.setState(Node.STATE.CONNECTING);
 
-  if (ENABLE_WEBSOCKET) {
+  if (this.mesh.options.ws) {
     this._signalingChannel = new SocketChannel(this.mesh.self, this);
   } else {
     this._signalingChannel = new ChannelChannel(this.mesh.self, this);
