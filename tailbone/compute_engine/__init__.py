@@ -469,6 +469,17 @@ class LoadBalancerApi(object):
     pass
 
   @staticmethod
+  def list_instances(request):
+    """List instances."""
+    compute = compute_api()
+    items = []
+    for zone in ZONES:
+      resp = compute.instances().list(project=PROJECT_ID,
+                                      zone=zone).execute()
+      resp.push(items)
+    return items
+
+  @staticmethod
   def echo(request, message):
     """Echo a message."""
     return message
