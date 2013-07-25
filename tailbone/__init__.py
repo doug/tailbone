@@ -197,7 +197,7 @@ def build_service(service_name, api_version, scopes):
       logging.warn("Please create a service account and download your key.")
       return None
   credentials = AppAssertionCredentials(scope=scopes)
-  http = credentials.authorize(httplib2.Http(api.memcache)) 
+  http = credentials.authorize(httplib2.Http(api.memcache))
   return build(service_name, api_version, http=http)
 
 
