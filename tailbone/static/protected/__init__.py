@@ -69,7 +69,7 @@ _config = lib_config.register('tailbone_static_protected', _ConfigDefaults.__dic
 
 mimetypes.add_type("image/svg+xml", ".svg")
 mimetypes.add_type("application/x-font-otf", ".otf")
-mimetypes.add_type("application/x-font-woff", ".woff")
+mimetypes.add_type("application/font-woff", ".woff")
 mimetypes.add_type("application/x-font-ttf", ".ttf")
 mimetypes.add_type("application/vnd.ms-fontobject", ".eot")
 
