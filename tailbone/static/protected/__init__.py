@@ -21,18 +21,58 @@ from tailbone import config
 from google.appengine.api import urlfetch
 from google.appengine.api import lib_config
 
+# Example of admin auth
+class _ConfigDefaults(object):
+  def is_authorized(request):
+    return config.is_current_user_admin()
+
+  def unauthorized_response(request):
+    return """
+<html><head></head><body>
+You must be an approved logged in user.
+<a href="/api/login?continue=%s">Login In</a>
+</body></html>
+""" % (request.path,)
+
+# Example of password auth
+class _ConfigDefaults(object):
+  PASSWORD = "notasecret"
+
+  def is_authorized(request):
+    return _config.PASSWORD == request.cookies.get("whisper")
+
+  def unauthorized_response(request):
+    return """
+<html><head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<script>
+  function proceed() {
+    var password = document.getElementById("pass").value;
+    if (password != "") {
+      var cookie = "whisper="+escape(password)+";"
+      cookie += " path=/;";
+      document.cookie = cookie;
+    }
+  }
+</script>
+</head><body>
+You must be an approved logged in user.
+  <p>Authentication:</p>
+  <form onsubmit="proceed()" action="%s">
+    <input type="password" id="pass" />
+    <input type="submit" value="Enter" />
+  </form>
+</body></html>
+""" % (request.path,)
+
+_config = lib_config.register('tailbone_static_protected', _ConfigDefaults.__dict__)
 
 class ProtectedHandler(webapp2.RequestHandler):
   def proxy(self, *args, **kwargs):
-    is_admin = config.is_current_user_admin()
-    if not is_admin:
-      self.response.out.write("""
-<html><head></head><body>
-You must be an approved logged in user.
-<a href="/api/login?continue={}">Login In</a>
-</body></html>
-""".format(self.request.path))
-      self.error(401)
+    authorized = _config.is_authorized(self.request)
+    if not authorized:
+      self.response.out.write(
+        _config.unauthorized_response(self.request))
       return
     path = self.request.path
     path = "client/app" + path
@@ -40,8 +80,11 @@ You must be an approved logged in user.
       path += "index.html"
     mimetype, _ = mimetypes.guess_type(path)
     self.response.headers["Content-Type"] = mimetype
-    with open(path) as f:
-      self.response.out.write(f.read())
+    try:
+      with open(urllib.unquote(path)) as f:
+        self.response.out.write(f.read())
+    except IOError:
+      self.error(404)
   def get(self, *args, **kwargs):
     self.proxy(*args, **kwargs)
   def put(self, *args, **kwargs):
