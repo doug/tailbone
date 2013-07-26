@@ -30,9 +30,9 @@ class _ConfigDefaults(object):
     return """
 <html><head></head><body>
 You must be an approved logged in user.
-<a href="/api/login?continue=%s">Login In</a>
+<a href="/api/login?continue=%s?%s">Login In</a>
 </body></html>
-""" % (request.path,)
+""" % (request.path, request.query_string)
 
 # Example of password auth
 class _ConfigDefaults(object):
@@ -58,12 +58,12 @@ class _ConfigDefaults(object):
 </head><body>
 You must be an approved logged in user.
   <p>Authentication:</p>
-  <form onsubmit="proceed()" action="%s">
+  <form onsubmit="proceed()" action="%s?%s">
     <input type="password" id="pass" />
     <input type="submit" value="Enter" />
   </form>
 </body></html>
-""" % (request.path,)
+""" % (request.path, request.query_string)
 
 _config = lib_config.register('tailbone_static_protected', _ConfigDefaults.__dict__)
 
