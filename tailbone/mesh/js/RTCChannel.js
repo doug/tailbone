@@ -310,7 +310,6 @@ var RTCChannelUtils = {
     channel.pc.createOffer(function (desc) {
       desc.sdp = RTCChannelUtils.preferOpus(desc.sdp);
       desc.sdp = RTCChannelUtils.highBandwidth(desc.sdp);
-      console.log(desc.sdp);
       channel.pc.setLocalDescription(desc);
       channel.remoteNode._trigger('rtc_offer', desc);
     }, function () {
@@ -322,7 +321,6 @@ var RTCChannelUtils = {
     channel.pc.createAnswer(function(desc) {
       desc.sdp = RTCChannelUtils.preferOpus(desc.sdp);
       desc.sdp = RTCChannelUtils.highBandwidth(desc.sdp);
-      console.log(desc.sdp);
       channel.pc.setLocalDescription(desc);
       channel.remoteNode._trigger('rtc_answer', desc);
     });
