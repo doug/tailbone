@@ -79,7 +79,8 @@ class ProtectedHandler(webapp2.RequestHandler):
     if path[-1] == "/":
       path += "index.html"
     mimetype, _ = mimetypes.guess_type(path)
-    self.response.headers["Content-Type"] = mimetype
+    if mimetype:
+      self.response.headers["Content-Type"] = mimetype
     try:
       with open(urllib.unquote(path)) as f:
         self.response.out.write(f.read())

@@ -54,11 +54,12 @@
 # tailbone_turn_RESTIRCTED_DOMAINS = ["localhost"]
 # tailbone_turn_SECRET = "notasecret"
 
-# tailbone_mesh_TURN = False
-# tailbone_mesh_WEBSOCKET = False
-# tailbone_mesh_CHANNEL = True
+# tailbone_mesh_ENABLE_TURN = True
+# tailbone_mesh_ENABLE_WEBSOCKET = True
 
 ## Seconds until room expires
 # tailbone_mesh_ROOM_EXPIRATION = 86400
 
+## Protected site
+# tailbone_static_protected_PASSWORD = "mypassword"
 
