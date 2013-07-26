@@ -67,6 +67,13 @@ You must be an approved logged in user.
 
 _config = lib_config.register('tailbone_static_protected', _ConfigDefaults.__dict__)
 
+mimetypes.add_type("image/svg+xml", ".svg")
+mimetypes.add_type("application/x-font-otf", ".otf")
+mimetypes.add_type("application/x-font-woff", ".woff")
+mimetypes.add_type("application/x-font-ttf", ".ttf")
+mimetypes.add_type("application/vnd.ms-fontobject", ".eot")
+
+
 class ProtectedHandler(webapp2.RequestHandler):
   def proxy(self, *args, **kwargs):
     authorized = _config.is_authorized(self.request)
