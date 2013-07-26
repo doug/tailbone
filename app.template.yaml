@@ -4,6 +4,10 @@ runtime: python27
 api_version: 1
 threadsafe: true
 
+## Turn on and off modules or add your own by modifying the includes
+## Make sure one of the tailbone/static includes are at the end
+## Usually easiest to add your specific includes to the begining of the includes list
+
 includes:
   ## Base includes, authentication, and combined /tailbone.js file
   - tailbone
@@ -26,21 +30,13 @@ includes:
   ## Any path without a file extension not in /api gets the app/client/index.html text. Useful for
   ## html5 applications that use the history api to write their paths.
   # - tailbone/pathrewrite
+  ## Serve the app folder. Static protected resource can change protection in appengine_config.py
+  # - tailbone/static/protected
+  ## Serve the app folder. Static public resource (can only have protected or public not both)
+  - tailbone/static/public
 
-handlers:
-  # # Add your own custom apps and handlers if you want to extend this
-  # - url: /custom/.*
-  #   script: client/custom.app
 
-  # This links everything else in your client/app folder to be served
-  # Change this to something else if your public folder is not client/app
-  - url: (/?[^.]*)[^/]
-    script: tailbone.add_slash
-  - url: (/?.*)/
-    static_files: client/app\1/index.html
-    upload: client/app(.*)/index.html
-  - url: /
-    static_dir: client/app
+## Don't edit below this line unless before reading about https://developers.google.com/appengine/docs/python/config/appconfig
 
 builtins:
   - appstats: on
