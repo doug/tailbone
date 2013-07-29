@@ -58,7 +58,6 @@ class _ConfigDefaults(object):
       document.cookie = cookie;
       window.location.href = window.location.href;
     }
-    console.log(e);
     e.preventDefault();
     return false;
   });
