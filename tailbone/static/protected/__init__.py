@@ -27,12 +27,15 @@ class _ConfigDefaults(object):
     return config.is_current_user_admin()
 
   def unauthorized_response(request):
+    qs = request.query_string
+    if qs:
+      qs = "?" + qs;
     return """
 <html><head></head><body>
 You must be an approved logged in user.
-<a href="/api/login?continue=%s?%s">Login In</a>
+<a href="/api/login?continue=%s%s">Login In</a>
 </body></html>
-""" % (request.path, request.query_string)
+""" % (request.path, qs)
 
 # Example of password auth
 class _ConfigDefaults(object):
@@ -46,24 +49,29 @@ class _ConfigDefaults(object):
 <html><head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <script>
-  function proceed() {
+  var form = document.getElementById("authform");
+  document.addEventListener("submit", function(e) {
     var password = document.getElementById("pass").value;
     if (password != "") {
       var cookie = "whisper="+escape(password)+";"
       cookie += " path=/;";
       document.cookie = cookie;
+      window.location.href = window.location.href;
     }
-  }
+    console.log(e);
+    e.preventDefault();
+    return false;
+  });
 </script>
 </head><body>
 You must be an approved logged in user.
   <p>Authentication:</p>
-  <form onsubmit="proceed()" action="%s?%s">
+  <form id="authform">
     <input type="password" id="pass" />
     <input type="submit" value="Enter" />
   </form>
 </body></html>
-""" % (request.path, request.query_string)
+"""
 
 _config = lib_config.register('tailbone_static_protected', _ConfigDefaults.__dict__)
 
