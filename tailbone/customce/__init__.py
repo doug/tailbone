@@ -17,6 +17,7 @@ from tailbone import as_json
 from tailbone import config
 from tailbone import DEBUG
 from tailbone import PREFIX
+from tailbone.compute_engine import LoadBalancer
 from tailbone.compute_engine import TailboneCEInstance
 from tailbone.compute_engine import STARTUP_SCRIPT_BASE
 
@@ -37,11 +38,13 @@ class _ConfigDefaults(object):
 echo "You should edit the appengine_config.py file with your own startup_script."
 """
 
+  PARAMS = None
+
   def calc_load(stats):
     return TailboneCEInstance.calc_load(stats)
 
 
-_config = lib_config.register('tailbone_compute_engine_custom', _ConfigDefaults.__dict__)
+_config = lib_config.register('tailbone_customce', _ConfigDefaults.__dict__)
 
 # Prefixing internal models with Tailbone to avoid clobbering when using RESTful API
 class TailboneCustomInstance(TailboneCEInstance):
@@ -55,7 +58,7 @@ class TailboneCustomInstance(TailboneCEInstance):
         },
       ],
     }
-  })
+  }) if not _config.PARAMS else dict(TailboneCEInstance.PARAMS, **_config.PARAMS)
 
   @staticmethod
   def calc_load(stats):
@@ -65,10 +68,13 @@ class TailboneCustomInstance(TailboneCEInstance):
 class CustomHandler(BaseHandler):
   @as_json
   def get(self):
+    instance = LoadBalancer.find(TailboneCustomInstance, self.request)
+    if not instance:
+      raise AppError('Instance not found, try again later.')
     return {
-      "ip": address
+      "ip": instance.address
     }
 
 app = webapp2.WSGIApplication([
-  (r"{}custom/?.*".format(PREFIX), CustomHandler),
+  (r"{}customce/?.*".format(PREFIX), CustomHandler),
 ], debug=DEBUG)

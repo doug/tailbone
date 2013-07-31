@@ -107,7 +107,7 @@ def get_or_create_room(request, name=None):
         raise AppError('Instance not yet ready, try again later.')
       address = "ws://{}:{}/{}".format(instance.address, TailboneWebsocketInstance.PORT, name)
     else:
-      address = '/api/channel/'
+      address = '/api/mesh/channel/'
     memcache.set(room, address, time=_config.ROOM_EXPIRATION)
   return name, address
 
@@ -116,18 +116,21 @@ class MeshHandler(BaseHandler):
   @as_json
   def get(self, name):
     room, ws = get_or_create_room(self.request, name)
-    # ts = LoadBalancer.find(turn.TailboneTurnInstance, self.request)
-    username = self.request.get("username", generate_word())
-    username, password = turn.credentials(username)
-    ts = None
-    # ts = "turn:173.255.117.180"
-    return {
-      "ws": ws,
-      "name": room,
-      "turn": ts,
-      "username": username,
-      "password": password,
+    resp = {
+      "ws": ws
+      "name": room
     }
+    if _config.ENABLE_TURN:
+      ts = LoadBalancer.find(turn.TailboneTurnInstance, self.request)
+      if ts:
+        username = self.request.get("username", generate_word())
+        username, password = turn.credentials(username, ts.secret)
+        resp.update({
+          "turn": ts,
+          "username": username,
+          "password": password,
+        })
+    return resp
 
   @as_json
   def delete(self, name):

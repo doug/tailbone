@@ -77,11 +77,14 @@ class TurnHandler(BaseHandler):
     username = self.request.get("username")
     if not username:
       raise AppError("Must provide username.")
-    username, password = credentials(username)
+    instance = LoadBalancer.find(TailboneTurnInstance, self.request)
+    if not instance:
+      raise AppError('Instance not found, try again later.')
+    username, password = credentials(username, instance.secret)
     return {
       "username": username,
       "password": password,
-      "turn": "some address"
+      "turn": instance.address
     }
 
 app = webapp2.WSGIApplication([

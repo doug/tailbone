@@ -13,7 +13,7 @@
 # limitations under the License.
 
 handlers:
-  - url: /api/channel/?.*
+  - url: /api/mesh/channel/?.*
     script: tailbone.mesh.channel.app
   - url: /_ah/channel/(dis)?connected/
     script: tailbone.mesh.channel.connected

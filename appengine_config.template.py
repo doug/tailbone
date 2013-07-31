@@ -64,7 +64,8 @@
 # tailbone_static_protected_PASSWORD = "mypassword"
 
 ## Custom load balanced compute engine instance
-# tailbone_compute_engine_custom_STARTUP_SCRIPT = """
+## Note: if you are referencing a filepath with tailbone the base is going to be 'client'
+# tailbone_customce_STARTUP_SCRIPT = """
 # curl -O http://nodejs.org/dist/v0.10.15/node-v0.10.15.tar.gz
 # tar xvfz node-v0.10.15.tar.gz
 # cd node-v0.10.15
@@ -75,12 +76,12 @@
 # rm -rf node-v0.10.15
 # rm -f node-v0.10.15.tar.gz
 
-# cat >room.js <<EOL
+# cat >server.js <<EOL
 # %s
 # EOL
 
 # npm install ws
 
-# node room.js
+# node server.js
 
-# """ % (open("server/room.js").read(),)
+# """ % (open("client/mywebsocketserver.js").read(),)

@@ -54,7 +54,7 @@ ChannelMultiplexer.prototype.open = function(channel) {
   document.body.appendChild(script);
   script.onload = function() {
 
-    http.GET('/api/channel/' + self.mesh.id, function(data) {
+    http.GET('/api/mesh/channel/' + self.mesh.id, function(data) {
       var channel = new goog.appengine.Channel(data.token);
       var socket = self.socket = channel.open()
       socket.onopen = function(e) {
@@ -158,7 +158,7 @@ ChannelMultiplexer.prototype.close = function(channel) {
 ChannelMultiplexer.prototype.send = function(channel, message) {
   // TODO: user defer to batch send messages
   var msg = [[channel.remoteNode.id], message];
-  http.POST('/api/channel/' + this.mesh.id + '/' + this.mesh.self.id, 
+  http.POST('/api/mesh/channel/' + this.mesh.id + '/' + this.mesh.self.id, 
             msg,
             function(){});
   return true;

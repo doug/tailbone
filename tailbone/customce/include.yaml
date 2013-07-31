@@ -13,5 +13,5 @@
 # limitations under the License.
 
 handlers:
-  - url: /api/compute_engine/custom/?.*
-    script: tailbone.compute_engine.custom.app
+  - url: /api/customce/?.*
+    script: tailbone.customce.app

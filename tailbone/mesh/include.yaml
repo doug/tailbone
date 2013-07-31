@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-handlers:
-  - url: /api/mesh/?.*
-    script: tailbone.mesh.app
-
 includes:
   - tailbone/compute_engine
   - tailbone/mesh/channel
+
+handlers:
+  - url: /api/mesh/?.*
+    script: tailbone.mesh.app

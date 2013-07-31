@@ -125,7 +125,7 @@ class ChannelHandler(BaseHandler):
 
 
 app = webapp2.WSGIApplication([
-  (r"{}channel/?([^/]*)/?([^/]*)".format(PREFIX), ChannelHandler),
+  (r"{}mesh/channel/?([^/]*)/?([^/]*)".format(PREFIX), ChannelHandler),
 ], debug=DEBUG)
 
 
