@@ -498,7 +498,7 @@ class LoadBalancerApi(object):
     for zone in ZONES:
       resp = compute.instances().list(project=PROJECT_ID,
                                       zone=zone).execute()
-      resp.append(items)
+      items.append(resp)
     return items
 
   @staticmethod
