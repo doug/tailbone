@@ -17,9 +17,9 @@ from tailbone import as_json, BaseHandler, compile_js, AppError
 from tailbone import config
 from tailbone import DEBUG
 from tailbone import PREFIX
+from tailbone import turn
 from tailbone.compute_engine import LoadBalancer
 from tailbone.compute_engine import TailboneCEInstance
-from tailbone.compute_engine import turn
 from tailbone.compute_engine import STARTUP_SCRIPT_BASE
 
 import base64
@@ -76,7 +76,7 @@ class _ConfigDefaults(object):
     return generate_word() + "." + generate_word()
 
 
-_config = lib_config.register('tailbone_mesh', _ConfigDefaults.__dict__)
+_config = lib_config.register('tailboneMesh', _ConfigDefaults.__dict__)
 
 def room_hash(name):
   return "tailbone-mesh-room-{}".format(base64.b64encode(name))
@@ -106,8 +106,6 @@ def get_or_create_room(request, name=None):
       if not instance:
         raise AppError('Instance not yet ready, try again later.')
       address = "ws://{}:{}/{}".format(instance.address, TailboneWebsocketInstance.PORT, name)
-    else:
-      address = '/api/mesh/channel/'
     memcache.set(room, address, time=_config.ROOM_EXPIRATION)
   return name, address
 
@@ -117,8 +115,8 @@ class MeshHandler(BaseHandler):
   def get(self, name):
     room, ws = get_or_create_room(self.request, name)
     resp = {
-      "ws": ws
-      "name": room
+      "ws": ws,
+      "name": room,
     }
     if _config.ENABLE_TURN:
       ts = LoadBalancer.find(turn.TailboneTurnInstance, self.request)

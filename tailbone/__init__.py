@@ -180,8 +180,8 @@ def parse_body(self):
 def build_service(service_name, api_version, scopes):
   """Get an authorized service account http connection"""
   if DEBUG:
-    from oauth2client.client import SignedJwtAssertionCredentials
     if config.SERVICE_EMAIL and config.SERVICE_KEY_PATH and os.path.exists(config.SERVICE_KEY_PATH):
+      from oauth2client.client import SignedJwtAssertionCredentials
       # must extract key first since pycrypto doesn't support p12 files
       # openssl pkcs12 -passin pass:notasecret -in privatekey.p12 -nocerts -passout pass:notasecret -out key.pem
       # openssl pkcs8 -nocrypt -in key.pem -passin pass:notasecret -topk8 -out privatekey.pem
@@ -194,8 +194,8 @@ def build_service(service_name, api_version, scopes):
       http = credentials.authorize(httplib2.Http(api.memcache))
       return build(service_name, api_version, http=http)
     else:
-      logging.warn("Please create a service account and download your key.")
-      return None
+      logging.warn("Please create a service account and download your key add to appengine_config.py.")
+      raise AppError("Service '{}' not availble from localhost without a service account set up and added to appengine_config.py.".format(service_name))
   credentials = AppAssertionCredentials(scope=scopes)
   http = credentials.authorize(httplib2.Http(api.memcache))
   return build(service_name, api_version, http=http)

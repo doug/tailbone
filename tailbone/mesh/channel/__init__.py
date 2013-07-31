@@ -38,7 +38,7 @@ class _ConfigDefaults(object):
     return str(memcache.incr("tailbone_mesh_channel_uid", initial_value=1))
 
 
-_config = lib_config.register("tailbone_mesh_channel", _ConfigDefaults.__dict__)
+_config = lib_config.register("tailboneMeshChannel", _ConfigDefaults.__dict__)
 
 
 def append_mesh_to_cid(mesh, client_id):
@@ -125,7 +125,7 @@ class ChannelHandler(BaseHandler):
 
 
 app = webapp2.WSGIApplication([
-  (r"{}mesh/channel/?([^/]*)/?([^/]*)".format(PREFIX), ChannelHandler),
+  (r"{}channel/?([^/]*)/?([^/]*)".format(PREFIX), ChannelHandler),
 ], debug=DEBUG)
 
 

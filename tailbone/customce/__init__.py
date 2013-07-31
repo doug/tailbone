@@ -14,6 +14,7 @@
 
 from tailbone import BaseHandler
 from tailbone import as_json
+from tailbone import AppError
 from tailbone import config
 from tailbone import DEBUG
 from tailbone import PREFIX
@@ -31,20 +32,16 @@ import webapp2
 from google.appengine.api import lib_config
 
 
-
 class _ConfigDefaults(object):
-
+  PARAMS = None
   STARTUP_SCRIPT = """
 echo "You should edit the appengine_config.py file with your own startup_script."
 """
-
-  PARAMS = None
-
   def calc_load(stats):
     return TailboneCEInstance.calc_load(stats)
 
 
-_config = lib_config.register('tailbone_customce', _ConfigDefaults.__dict__)
+_config = lib_config.register('tailboneCustomCE', _ConfigDefaults.__dict__)
 
 # Prefixing internal models with Tailbone to avoid clobbering when using RESTful API
 class TailboneCustomInstance(TailboneCEInstance):

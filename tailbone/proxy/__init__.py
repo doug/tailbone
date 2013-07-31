@@ -24,7 +24,7 @@ class _ConfigDefaults(object):
   # list of valid domain to restrict proxy to defaults to anything
   RESTRICTED_DOMAINS = None
 
-_config = lib_config.register('tailbone_proxy', _ConfigDefaults.__dict__)
+_config = lib_config.register('tailboneProxy', _ConfigDefaults.__dict__)
 
 
 # Simple Proxy Server

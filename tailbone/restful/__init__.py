@@ -83,7 +83,7 @@ class _ConfigDefaults(object):
   PROTECTED_MODEL_NAMES = ["(?i)(mesh|messages|files|events|admin|proxy)",
                            "(?i)tailbone.*"]
 
-_config = api.lib_config.register('tailbone_restful', _ConfigDefaults.__dict__)
+_config = api.lib_config.register('tailboneRestful', _ConfigDefaults.__dict__)
 
 
 re_public = re.compile(r"^[A-Z].*")

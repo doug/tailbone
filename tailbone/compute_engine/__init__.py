@@ -369,6 +369,9 @@ class LoadBalancer(object):
   @staticmethod
   def find(instance_class, request):
     """Return an instance of this instance type from the nearest pool or create it."""
+    if DEBUG:
+      # check to make sure we can access the api before we do anything
+      compute_api()
     region, zone = LoadBalancer.nearest_zone(request)
     instance_str = class_to_string(instance_class)
     pool = LoadBalancer.get_or_create_pool(instance_str, region)
@@ -406,9 +409,9 @@ class LoadBalancer(object):
             instance.put()
             deferred.defer(update_instance_status, instance.key.urlsafe(), _countdown=STARTING_STATUS_DELAY)
             size += 1
-    # start any additional instances need to meet pool min_size
-    for i in range(pool.min_size - size):
-      LoadBalancer.start_instance(pool)
+      # start any additional instances need to meet pool min_size
+      for i in range(pool.min_size - size):
+        LoadBalancer.start_instance(pool)
 
   @staticmethod
   def get_or_create_pool(instance_class_str, region):
@@ -495,7 +498,7 @@ class LoadBalancerApi(object):
     for zone in ZONES:
       resp = compute.instances().list(project=PROJECT_ID,
                                       zone=zone).execute()
-      resp.push(items)
+      resp.append(items)
     return items
 
   @staticmethod

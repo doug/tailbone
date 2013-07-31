@@ -14,9 +14,10 @@
 
 from tailbone import BaseHandler
 from tailbone import as_json
-from tailbone import config
+from tailbone import AppError
 from tailbone import DEBUG
 from tailbone import PREFIX
+from tailbone.compute_engine import LoadBalancer
 from tailbone.compute_engine import TailboneCEInstance
 from tailbone.compute_engine import STARTUP_SCRIPT_BASE
 
@@ -31,10 +32,11 @@ from google.appengine.api import lib_config
 from google.appengine.ext import ndb
 
 
-_config = lib_config.register("tailbone_turn", {
-                              "SECRET": "notasecret",
-                              "RESTRICTED_DOMAINS": ["localhost"],
-                              })
+class _ConfigDefaults(object):
+  SECRET = "notasecret"
+  RESTRICTED_DOMAINS = ["localhost"]
+
+_config = lib_config.register('tailboneTurn', _ConfigDefaults.__dict__)
 
 # Prefixing internal models with Tailbone to avoid clobbering when using RESTful API
 class TailboneTurnInstance(TailboneCEInstance):
@@ -52,7 +54,7 @@ dpkg -i rfc5766-turn-server_1.8.7.0-1_amd64.deb
 apt-get -f install
 turnserver --use-auth-secret -v -a -X -f --static-auth-secret %s %s
  
-""" % (_config.SECRET, " ".join(["-r " + str(d) in _config.RESTRICTED_DOMAINS]),
+""" % (_config.SECRET, " ".join(["-r " + str(d) for d in _config.RESTRICTED_DOMAINS]),)
         },
       ],
     }
@@ -88,5 +90,5 @@ class TurnHandler(BaseHandler):
     }
 
 app = webapp2.WSGIApplication([
-  (r"{}/turn/?.*".format(PREFIX), TurnHandler),
+  (r"{}turn/?.*".format(PREFIX), TurnHandler),
 ], debug=DEBUG)

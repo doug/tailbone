@@ -72,7 +72,7 @@ You must be an approved logged in user.
 </body></html>
 """
 
-_config = lib_config.register('tailbone_static_protected', _ConfigDefaults.__dict__)
+_config = lib_config.register('tailboneStaticProtected', _ConfigDefaults.__dict__)
 
 mimetypes.add_type("image/svg+xml", ".svg")
 mimetypes.add_type("application/x-font-otf", ".otf")

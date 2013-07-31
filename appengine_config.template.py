@@ -31,10 +31,10 @@
 # tailbone_create_logout_url = 
 
 ## Use cloud store instead of blobstore
-# tailbone_files_CLOUDSTORE = False
+# tailboneFiles_CLOUDSTORE = False
 
 ## Store counts for restful models accessible in HEAD query
-# tailbone_restful_METADATA = False
+# tailboneRestful_METADATA = False
 
 ## If specified is a list of tailbone.restful.ScopedModel objects these will be the only ones allowed.
 ## This is a next level step of model restriction to your db, this replaces validation.json
@@ -42,30 +42,31 @@
 # from tailbone.restful import ScopedModel
 # class MyModel(ScopedModel):
 #   stuff = ndb.IntegerProperty()
-# tailbone_restful_DEFINED_MODELS = {"mymodel": MyModel}
-# tailbone_restful_RESTRICT_TO_DEFINED_MODELS = False
+# tailboneRestful_DEFINED_MODELS = {"mymodel": MyModel}
+# tailboneRestful_RESTRICT_TO_DEFINED_MODELS = False
 
 ## Protected model names gets overridden by RESTRICTED_MODELS
-# tailbone_restful_PROTECTED_MODEL_NAMES = ["(?i)tailbone.*", "custom", "(?i)users"]
+# tailboneRestful_PROTECTED_MODEL_NAMES = ["(?i)tailbone.*", "custom", "(?i)users"]
 
 ## Proxy can only be used for the restricted domains if specified
-# tailbone_proxy_RESTRICTED_DOMAINS = ["google.com"]
+# tailboneProxy_RESTRICTED_DOMAINS = ["google.com"]
 
-# tailbone_turn_RESTIRCTED_DOMAINS = ["localhost"]
-# tailbone_turn_SECRET = "notasecret"
+# tailboneTurn_RESTIRCTED_DOMAINS = ["localhost"]
+# tailboneTurn_SECRET = "notasecret"
 
-# tailbone_mesh_ENABLE_TURN = True
-# tailbone_mesh_ENABLE_WEBSOCKET = True
+# tailboneMesh_ENABLE_TURN = True
+# tailboneMesh_ENABLE_WEBSOCKET = True
 
 ## Seconds until room expires
-# tailbone_mesh_ROOM_EXPIRATION = 86400
+# tailboneMesh_ROOM_EXPIRATION = 86400
 
 ## Protected site
-# tailbone_static_protected_PASSWORD = "mypassword"
+# tailboneStaticProtected_PASSWORD = "mypassword"
 
 ## Custom load balanced compute engine instance
-## Note: if you are referencing a filepath with tailbone the base is going to be 'client'
-# tailbone_customce_STARTUP_SCRIPT = """
+# tailboneCustomCE_STARTUP_SCRIPT = """
+# apt-get install build-essential
+
 # curl -O http://nodejs.org/dist/v0.10.15/node-v0.10.15.tar.gz
 # tar xvfz node-v0.10.15.tar.gz
 # cd node-v0.10.15
