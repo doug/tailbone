@@ -4,9 +4,8 @@
 
 Install helper and dependencies
 
-    brew install google-app-engine
-    curl https://raw.github.com/doug/tailbone/generator/build/0.1.0/darwin_amd64/tailbone > /usr/local/bin/tailbone
-    chmod 744 /usr/local/bin/tailbone
+    brew install google-app-engine go
+    go get github.com/doug/tailbone-generator/tailbone
 
 Your new project
 
@@ -85,9 +84,8 @@ If you want to contribute please add a test for any fix or feature before you fi
 
 - Install tailbone
 
-        brew install google-app-engine
-        curl https://raw.github.com/doug/tailbone/generator/build/0.1.0/darwin_amd64/tailbone > /usr/local/bin/tailbone
-        chmod 744 /usr/local/bin/tailbone
+        brew install google-app-engine go
+        go get github.com/doug/tailbone-generator/tailbone
 
 - Initialize a new tailbone project
 
@@ -413,7 +411,7 @@ You can restrict which domains are allowed by editing appengine_config.py with
 
 ## clocksync
 
-Syncronize clocks across javascript clients. See [javascript code](https://github.com/doug/tailbone/blob/reorg/tailbone/clocksync/clocksync.js)
+Syncronize clocks across javascript clients. See [javascript code](https://github.com/dataarts/tailbone/blob/master/tailbone/clocksync/clocksync.js)
 
 ## mesh
 

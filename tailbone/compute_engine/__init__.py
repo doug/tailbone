@@ -48,6 +48,25 @@ from google.appengine.ext.ndb import polymodel
 
 from apiclient.errors import HttpError
 
+STARTUP_SCRIPT_BASE = """#!/bin/bash
+
+# install deps
+apt-get install -y build-essential python-dev
+
+# load reporter
+curl -O http://psutil.googlecode.com/files/psutil-0.6.1.tar.gz
+tar xvfz psutil-0.6.1.tar.gz
+cd psutil-0.6.1
+python setup.py install
+cd ..
+rm -rf psutil-0.6.1
+rm psutil-0.6.1.tar.gz
+cat >load_reporter.py <<EOL
+%s
+EOL
+python load_reporter.py &
+
+""" % (open("tailbone/compute_engine/load_reporter.py").read(),)
 
 SCOPES = ["https://www.googleapis.com/auth/compute",
           "https://www.googleapis.com/auth/devstorage.read_write"]

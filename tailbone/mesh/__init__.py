@@ -19,8 +19,8 @@ from tailbone import DEBUG
 from tailbone import PREFIX
 from tailbone.compute_engine import LoadBalancer
 from tailbone.compute_engine import TailboneCEInstance
-from tailbone.compute_engine import websocket
 from tailbone.compute_engine import turn
+from tailbone.compute_engine import STARTUP_SCRIPT_BASE
 
 import base64
 import json
@@ -33,6 +33,39 @@ from google.appengine.api import users
 from google.appengine.api import memcache
 from google.appengine.api import app_identity
 from google.appengine.api import lib_config 
+
+# TODO: Use an image instead of a startup-script for downloading dependencies
+
+# Prefixing internal models with Tailbone to avoid clobbering when using RESTful API
+class TailboneWebsocketInstance(TailboneCEInstance):
+  PORT = 2345
+  PARAMS = dict(TailboneCEInstance.PARAMS, **{
+    "name": "websocket-id",
+    "metadata": {
+      "items": [
+        {
+          "key": "startup-script",
+          "value": STARTUP_SCRIPT_BASE + """
+# websocket server
+curl -O https://pypi.python.org/packages/source/t/tornado/tornado-3.0.1.tar.gz
+tar xvfz tornado-3.0.1.tar.gz
+cd tornado-3.0.1
+python setup.py install
+cd ..
+rm -rf tornado-3.0.1
+rm tornado-3.0.1.tar.gz
+
+cat >websocket.py <<EOL
+%s
+EOL
+python websocket.py 
+
+""" % (open("tailbone/mesh/websocket.py").read(),),
+        },
+      ],
+    }
+  })
+
 
 class _ConfigDefaults(object):
   ROOM_EXPIRATION = 86400  # one day in seconds
@@ -69,10 +102,10 @@ def get_or_create_room(request, name=None):
           address = request.remote_addr if str(request.remote_addr) != "::1" else "localhost"
         instance = DebugInstance()
       else:
-        instance = LoadBalancer.find(websocket.TailboneWebsocketInstance, request)
+        instance = LoadBalancer.find(TailboneWebsocketInstance, request)
       if not instance:
         raise AppError('Instance not yet ready, try again later.')
-      address = "ws://{}:{}/{}".format(instance.address, websocket.WEBSOCKET_PORT, name)
+      address = "ws://{}:{}/{}".format(instance.address, TailboneWebsocketInstance.PORT, name)
     else:
       address = '/api/channel/'
     memcache.set(room, address, time=_config.ROOM_EXPIRATION)

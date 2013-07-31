@@ -63,3 +63,24 @@
 ## Protected site
 # tailbone_static_protected_PASSWORD = "mypassword"
 
+## Custom load balanced compute engine instance
+# tailbone_compute_engine_custom_STARTUP_SCRIPT = """
+# curl -O http://nodejs.org/dist/v0.10.15/node-v0.10.15.tar.gz
+# tar xvfz node-v0.10.15.tar.gz
+# cd node-v0.10.15
+# ./configure
+# make
+# make install
+# cd ..
+# rm -rf node-v0.10.15
+# rm -f node-v0.10.15.tar.gz
+
+# cat >room.js <<EOL
+# %s
+# EOL
+
+# npm install ws
+
+# node room.js
+
+# """ % (open("server/room.js").read(),)
